@@ -1,20 +1,25 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const User = require('./modules/User');
+const User = require('./models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const app = express();
+const bodyParser = require('body-parser')
+const galleryRoutes = require('./routes/galleryRoutes')
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'jhdbw';
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(cookieParser());
 
 mongoose.connect('mongodb+srv://memosac:memosacAdmin@memosac.peali.mongodb.net/?retryWrites=true&w=majority&appName=Memosac');
+
+app.use('/api',galleryRoutes);
 
 app.post("/register",(req,res)=>{
     const {username, password} = req.body;
