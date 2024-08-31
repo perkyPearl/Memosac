@@ -11,7 +11,7 @@ const UploadImage = ({ setReload }) => {
         error: "",
     });
 
-    const { file, formData, error } = values;
+    const { file, error } = values;
 
     const handleChange = (e) => {
         const value = e.target.files[0];
