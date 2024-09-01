@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import CircularProgress from "@mui/material/CircularProgress"; // Updated to MUI v5
+import CircularProgress from "@mui/material/CircularProgress";
 import { uploadData } from "../apicalls";
+import '../styles/Gallery.css'; // Ensure correct path
 
 const ProgressBar = ({ values, setValues, setReload }) => {
     const [isUploading, setIsUploading] = useState(false);
@@ -32,7 +33,7 @@ const ProgressBar = ({ values, setValues, setReload }) => {
                         setIsUploading(false);
                     }
                 })
-                .catch((error) => {
+                .catch(() => {
                     if (isMounted) {
                         setValues((prevValues) => ({
                             ...prevValues,
@@ -50,9 +51,12 @@ const ProgressBar = ({ values, setValues, setReload }) => {
     }, [values.formData, setValues, setReload]);
 
     return (
-        <div>
+        <div className="progress-overlay">
             {isUploading ? (
-                <CircularProgress color="secondary" />
+                <CircularProgress
+                    color="secondary"
+                    size={60}
+                />
             ) : (
                 <p>Upload complete!</p>
             )}

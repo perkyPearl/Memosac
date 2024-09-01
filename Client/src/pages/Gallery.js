@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import UploadImage from "../components/UploadImage";
-// import styles from "../Gallery.css";
 import Model from "../components/Model";
+import "../styles/Gallery.css"
 import ImageGrid from "../components/ImageGrid";
 
 const Gallery = () => {
   const [selectedImg, setSelectedImg] = useState("");
   const [reload, setReload] = useState(true);
   return (
-    <div>
+    <div className="Gallery">
       <UploadImage setReload={setReload} />
       <ImageGrid
         setReload={setReload}

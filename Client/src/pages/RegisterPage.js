@@ -21,7 +21,7 @@ export default function RegisterPage() {
     }
 
     return (
-        <form className="register" onSubmit={register}>
+        <form className="register default-form-input default-form-button" onSubmit={register}>
             <h1>Register</h1>
             <input
                 type="text"

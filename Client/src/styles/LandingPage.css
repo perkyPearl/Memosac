@@ -1,0 +1,126 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+}
+
+.hero {
+    height: 100vh;
+    color: rgb(255, 255, 255);
+    display: flex;
+    background-image: url("../Images/Background Image.jpg");
+    border-radius: 15px;
+    margin: 8px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-size: cover;
+}
+
+.hero-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin: 0;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+.hero-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.hero-buttons button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 1rem;
+    background-color: #6c5ce7;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    width: fit-content;
+}
+
+.feature img {
+    height: 150px;
+}
+
+.features,
+.how-it-works,
+.cta {
+    padding: 15px;
+    text-align: center;
+    background-color: white;
+}
+
+.flex {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.feature {
+    margin-bottom: 20px;
+    width: 30%;
+    padding: 10px;
+}
+
+.step {
+    margin-bottom: 20px;
+    width: 20%;
+    padding: 10px;
+}
+
+.step img {
+    height: 150px;
+}
+
+.cta {
+    background-color: #f4f4f4;
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cta a, .hero-buttons a{
+    text-decoration: none;
+}
+
+.cta button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #6c5ce7;
+    color: white;
+    width: fit-content;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.footer {
+    padding: 20px;
+    text-align: center;
+    background-color: #333;
+    color: white;
+}
+
+.footer-links a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
