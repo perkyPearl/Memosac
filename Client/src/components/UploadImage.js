@@ -35,7 +35,7 @@ const UploadImage = ({ setReload }) => {
 
     return (
         <form>
-            <h1>Your Photo Gallery</h1>
+            <h1>Public Photo Gallery</h1>
             <label>
                 <input
                     onChange={handleChange}

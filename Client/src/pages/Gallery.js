@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import UploadImage from "../components/UploadImage";
 import Model from "../components/Model";
-import "../styles/Gallery.css"
+import "../styles/Gallery.css";
 import ImageGrid from "../components/ImageGrid";
 
 const Gallery = () => {
   const [selectedImg, setSelectedImg] = useState("");
   const [reload, setReload] = useState(true);
+
+  console.log("Gallery - Selected Image:", selectedImg);
+
   return (
     <div className="Gallery">
       <UploadImage setReload={setReload} />

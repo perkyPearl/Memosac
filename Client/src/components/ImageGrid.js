@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { getImages, getImageUrl } from "../apicalls";
 import CircularProgress from "@mui/material/CircularProgress";
 import { motion } from "framer-motion";
+
 const ImageGrid = ({ setSelectedImg, reload, setReload }) => {
   const [values, setValues] = useState({
     images: [],
@@ -56,10 +57,15 @@ const ImageGrid = ({ setSelectedImg, reload, setReload }) => {
       ) : values.images.length > 0 ? (
         values.images.map((data) => (
           <motion.img
+            key={data._id}
             whileHover={{ opacity: 1 }}
             src={getImageUrl(data?._id)}
             alt="gallery"
             loading="lazy"
+            onClick={() => {
+              console.log("Image clicked:", data._id);
+              setSelectedImg(data._id);
+            }}
           />
         ))
       ) : (
