@@ -36,6 +36,7 @@ app.post('/google-login', async (req, res) => {
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
+
     let user = await User.findOne({ email });
     if (!user) {
       user = new User({
@@ -62,51 +63,56 @@ app.post('/google-login', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error while processing Google login' });
   }
 });
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
-  
-  if (!user) {
-    return res.status(400).json({ message: 'User not found' });
-  }
-
-  const isPasswordValid = bcrypt.compareSync(password, user.password);
-
-  if (isPasswordValid) {
-    const token = jwt.sign({ id: user._id, username: user.username }, secret, { expiresIn: '1h' });
-    res.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: false,
-      sameSite: 'Lax',
-    }).json({
-      id: user._id,
-      username,
-      token
-    });
+  try {
+    const user = await User.findOne({ username });
     
-    console.log("Token generated:", token);
-  } else {
-    res.status(400).json({ message: 'Invalid credentials' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
+
+    if (isPasswordValid) {
+      const token = jwt.sign({ id: user._id, username: user.username }, secret, { expiresIn: '1h' });
+      res.cookie('token', token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: false,
+        sameSite: 'Lax',
+      }).json({
+        id: user._id,
+        username,
+        token
+      });
+
+      console.log("Token generated:", token);
+    } else {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error during login' });
   }
 });
 
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
-  if (!username || !password) {
+  if (!username || !email || !password) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(409).json({ message: 'Username already exists' });
     }
 
     const hashedPassword = bcrypt.hashSync(password, salt);
@@ -121,13 +127,13 @@ app.post('/register', async (req, res) => {
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error while registering user' });
   }
 });
 
 app.post('/logout', (req, res) => {
   res.clearCookie('token');
-  res.json({ message: 'Logged out' });
+  res.json({ message: 'Successfully logged out' });
 });
 
 app.get("/profile", (req, res) => {
@@ -142,5 +148,5 @@ app.get("/profile", (req, res) => {
 });
 
 app.listen(4000, () => {
-  console.log("Server is Live on port 4000!");
+  console.log("Server is live on port 4000!");
 });

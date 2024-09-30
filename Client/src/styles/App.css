@@ -21,6 +21,12 @@ img {
     position: sticky;
 }
 
+.error{
+    color: red;
+    height: 16px;
+    font-size: 14px;
+}
+
 .center{
     display: flex;
     flex-direction: column;

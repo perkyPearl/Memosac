@@ -8,13 +8,13 @@ export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [redirect, setRedirect] = useState(false);
-    const [error, setError] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
         /* global google */
         google.accounts.id.initialize({
             client_id: "72725116402-9951ic5ja73dj1bj77b59gaib939uevv.apps.googleusercontent.com",
-            callback: handleGoogleLoginSuccess
+            callback: handleGoogleLoginSuccess,
         });
 
         google.accounts.id.renderButton(
@@ -25,8 +25,22 @@ export default function LoginPage() {
         google.accounts.id.prompt();
     }, []);
 
+    const validateForm = () => {
+        if (!username || !password) {
+            return "Both username and password are required";
+        }
+        return null; // No errors
+    };
+
     const login = async (ev) => {
         ev.preventDefault();
+
+        const validationError = validateForm();
+        if (validationError) {
+            setErrorMessage(validationError);
+            return;
+        }
+
         try {
             const response = await fetch("http://localhost:4000/login", {
                 method: "POST",
@@ -36,52 +50,56 @@ export default function LoginPage() {
                 body: JSON.stringify({ username, password }),
                 credentials: 'include',
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("Login error:", errorData);
-                setError("Login failed. Please check your credentials.");
+                setErrorMessage(errorData.message || "Login failed. Please check your credentials.");
                 return;
             }
-    
+
             const data = await response.json();
             setUserInfo(data);
             setRedirect(true);
-    
         } catch (error) {
-            console.log("Error during login:", error);
-            setError("An error occurred. Please try again.");
+            console.error("Error during login:", error);
+            setErrorMessage("An error occurred. Please try again.");
         }
     };
-    
+
     const handleGoogleLoginSuccess = async (response) => {
         const user = jwtDecode(response.credential);
         if (user) {
-            const res = await fetch("http://localhost:4000/google-login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    username: user.name,
-                    email: user.email,
-                    profilePic: user.picture,
-                }),
-                credentials: 'include',
-            });
-    
-            if (!res.ok) {
-                const errorData = await res.json();
-                console.error("Login error:", errorData);
-                setError("Login failed. Please try again.");
-                return;
+            try {
+                const res = await fetch("http://localhost:4000/google-login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        username: user.name,
+                        email: user.email,
+                        profilePic: user.picture,
+                    }),
+                    credentials: 'include',
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    console.error("Login error:", errorData);
+                    setErrorMessage(errorData.message || "Login failed. Please try again.");
+                    return;
+                }
+
+                const data = await res.json();
+                setUserInfo(data);
+                setRedirect(true);
+            } catch (error) {
+                console.error("Error during Google login:", error);
+                setErrorMessage("An error occurred during Google login. Please try again.");
             }
-    
-            const data = await res.json();
-            setUserInfo(data);
-            setRedirect(true);
         } else {
-            setError("Failed to log in with Google.");
+            setErrorMessage("Failed to log in with Google.");
         }
     };
 
@@ -95,18 +113,18 @@ export default function LoginPage() {
                 <h1>Login</h1>
                 <input
                     type="text"
-                    placeholder="username"
+                    placeholder="Username"
                     value={username}
                     onChange={ev => setUsername(ev.target.value)}
                 />
                 <input
                     type="password"
-                    placeholder="password"
+                    placeholder="Password"
                     value={password}
                     onChange={ev => setPassword(ev.target.value)}
                 />
+                <p className="error">{errorMessage}</p>
                 <button type="submit">Login</button>
-                {error && <div className="error">{error}</div>}
                 <div className="center">
                     <h4>Or login with Google</h4>
                     <div id="signInDiv" className="google-login"></div>
