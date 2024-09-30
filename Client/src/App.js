@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import "./styles/App.css";
 import { Route, Routes } from "react-router-dom";
 import Layout from "./Layout";
@@ -13,20 +14,22 @@ import EditPost from "./pages/EditPost";
 
 function App() {
   return (
-    <UserContextProvider>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/index" element={<IndexPage />} />
-          <Route path="/create" element={<CreatePost />} />
-          <Route path="/post/:id" element={<PostPage />} />
-          <Route path="/edit/:id" element={<EditPost />} />
-        </Route>
-      </Routes>
-    </UserContextProvider>
+    <GoogleOAuthProvider clientId="72725116402-9951ic5ja73dj1bj77b59gaib939uevv.apps.googleusercontent.com">
+      <UserContextProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/index" element={<IndexPage />} />
+            <Route path="/create" element={<CreatePost />} />
+            <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/edit/:id" element={<EditPost />} />
+          </Route>
+        </Routes>
+      </UserContextProvider>
+    </GoogleOAuthProvider>
   );
 }
 

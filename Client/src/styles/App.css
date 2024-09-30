@@ -21,6 +21,12 @@ img {
     position: sticky;
 }
 
+.center{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .NavBar a,
 .post .texts a {
     text-decoration: none;
@@ -105,6 +111,10 @@ img {
 .register {
     max-width: 400px;
     margin: 0 auto;
+}
+
+.google-login h4{
+    text-align: center;
 }
 
 .post-form {

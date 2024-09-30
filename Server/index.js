@@ -1,70 +1,133 @@
 const express = require("express");
 const cors = require("cors");
-const fs = require("fs");
 const mongoose = require("mongoose");
 const User = require('./models/User');
-const Post = require("./models/Post");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const multer = require("multer");
 const bodyParser = require('body-parser');
-const uploadMiddleware = multer({ dest: 'uploads/' });
-const galleryRoutes = require('./routes/galleryRoutes');
+const { google } = require('googleapis');
+const OAuth2 = google.auth.OAuth2;
 
 const app = express();
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'jhdbw';
 
+const oauth2Client = new OAuth2(
+  "72725116402-9951ic5ja73dj1bj77b59gaib939uevv.apps.googleusercontent.com",
+  "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",
+  "http://localhost:4000/oauth2callback"
+);
+
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use('/uploads', express.static(__dirname + '/uploads'));
 
-mongoose.connect('mongodb+srv://memosac:memosacAdmin@memosac.peali.mongodb.net/?retryWrites=true&w=majority&appName=Memosac');
+mongoose.connect('mongodb+srv://memosac:memosacAdmin@memosac.peali.mongodb.net/?retryWrites=true&w=majority&appName=Memosac')
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-app.use('/api', galleryRoutes);
+app.post('/google-login', async (req, res) => {
+  const { username, email, profilePic } = req.body;
 
-app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
   try {
-    const userDoc = await User.create({
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({
+        username: username || email.split('@')[0],
+        email,
+        profilePic,
+      });
+      await user.save();
+    }
+
+    const token = jwt.sign({ username, id: user._id }, secret, { expiresIn: '7d' });
+    console.log('Generated Token:', token);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: 'Lax',
+    }).json({
+      id: user._id,
       username,
-      password: bcrypt.hashSync(password, salt),
+      token
     });
-    res.json(userDoc);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const userDoc = await User.findOne({ username });
 
-  if (!userDoc) {
-    return res.status(400).json({ message: "Invalid credentials" });
+  const user = await User.findOne({ username });
+  
+  if (!user) {
+    return res.status(400).json({ message: 'User not found' });
   }
 
-  const passOk = bcrypt.compareSync(password, userDoc.password);
+  const isPasswordValid = bcrypt.compareSync(password, user.password);
 
-  if (passOk) {
-    const token = jwt.sign({ username, id: userDoc._id }, secret, { expiresIn: '7d' });
+  if (isPasswordValid) {
+    const token = jwt.sign({ id: user._id, username: user.username }, secret, { expiresIn: '1h' });
     res.cookie('token', token, {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      secure: false, // Set to true if using HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: false,
       sameSite: 'Lax',
     }).json({
-      id: userDoc._id,
-      username
+      id: user._id,
+      username,
+      token
     });
+    
+    console.log("Token generated:", token);
   } else {
-    res.status(400).json({ message: "Invalid credentials" });
+    res.status(400).json({ message: 'Invalid credentials' });
   }
+});
+
+app.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+    });
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logged out' });
 });
 
 app.get("/profile", (req, res) => {
@@ -78,94 +141,6 @@ app.get("/profile", (req, res) => {
   });
 });
 
-app.post('/logout', (req, res) => {
-  res.cookie('token', '', { maxAge: 0 }).json('ok');
-});
-
-app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
-  const { originalname, path } = req.file;
-  const parts = originalname.split('.');
-  const ext = parts[parts.length - 1];
-  const newPath = path + '.' + ext;
-  fs.renameSync(path, newPath);
-
-  const { token } = req.cookies;
-
-  if (!token) return res.status(401).json({ message: "No token provided" });
-
-  jwt.verify(token, secret, {}, async (err, info) => {
-    if (err) return res.status(403).json({ message: "Invalid or expired token" });
-
-    const { title, summary, content } = req.body;
-    const postDoc = await Post.create({
-      title,
-      summary,
-      content,
-      cover: newPath,
-      author: info.id,
-    });
-    res.json(postDoc);
-  });
-});
-
-app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
-  let newPath = null;
-
-  if (req.file) {
-    const { originalname, path } = req.file;
-    const parts = originalname.split('.');
-    const ext = parts[parts.length - 1];
-    newPath = path + '.' + ext;
-    fs.renameSync(path, newPath);
-  }
-
-  const { token } = req.cookies;
-
-  if (!token) return res.status(401).json({ message: "No token provided" });
-
-  jwt.verify(token, secret, {}, async (err, info) => {
-    if (err) return res.status(403).json({ message: "Invalid or expired token" });
-
-    const { id, title, summary, content } = req.body;
-    const postDoc = await Post.findById(id);
-
-    if (!postDoc) {
-      return res.status(404).json('Post not found');
-    }
-
-    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
-
-    if (!isAuthor) {
-      return res.status(400).json('You are not the author');
-    }
-
-    // Update fields manually and save
-    postDoc.title = title;
-    postDoc.summary = summary;
-    postDoc.content = content;
-    postDoc.cover = newPath ? newPath : postDoc.cover;
-
-    await postDoc.save(); // Save the updated document
-
-    res.json(postDoc);
-  });
-});
-
-app.get('/post', async (req, res) => {
-  res.json(
-    await Post.find()
-      .populate('author', ['username'])
-      .sort({ createdAt: -1 })
-      .limit(20)
-  );
-});
-
-app.get('/post/:id', async (req, res) => {
-  const { id } = req.params;
-  const postDoc = await Post.findById(id).populate('author', ['username']);
-  res.json(postDoc);
-});
-
 app.listen(4000, () => {
-  console.log('Server running on port 4000');
+  console.log("Server is Live on port 4000!");
 });

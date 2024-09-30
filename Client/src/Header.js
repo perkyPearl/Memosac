@@ -5,10 +5,10 @@ import { UserContext } from "./UserContext";
 export default function Header() {
   const { setUserInfo, userInfo } = useContext(UserContext);
   const navigate = useNavigate();
-  const [dropdownOpen, setDropdownOpen] = useState(false); // Initialize as false
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:4000/profile", { // Ensure this URL is correct
+    fetch("http://localhost:4000/profile", {
       credentials: "include",
     })
       .then((response) => {
@@ -23,7 +23,7 @@ export default function Header() {
       })
       .catch((error) => {
         console.error('Error fetching profile:', error);
-        setUserInfo(null); // Clear user info on error
+        setUserInfo(null);
       });
   }, [setUserInfo]);
 
