@@ -10,13 +10,13 @@ export default function Post({
   createdAt,
   author,
 }) {
-  console.log(author); // Check the author object here
-  
+  console.log(author);
+
   return (
     <div className="post">
       <div className="image">
         <Link to={`/post/${_id}`}>
-          <img src={"http://localhost:4000/" + cover} alt="" />
+          <img src={cover} alt="" />
         </Link>
       </div>
       <div className="texts">
@@ -24,7 +24,7 @@ export default function Post({
           <h2>{title}</h2>
         </Link>
         <p className="info">
-          <a className="author">{author ? author.username : 'Unknown Author'}</a>
+          <a className="author">{author ? author : "Unknown Author"}</a>
           <time>{formatISO9075(new Date(createdAt))}</time>
         </p>
         <p className="summary">{summary}</p>

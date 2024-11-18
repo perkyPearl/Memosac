@@ -15,14 +15,14 @@ export default function Header() {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Failed to fetch user profile');
+          throw new Error("Failed to fetch user profile");
         }
       })
       .then((userInfo) => {
         setUserInfo(userInfo);
       })
       .catch((error) => {
-        console.error('Error fetching profile:', error);
+        console.error("Error fetching profile:", error);
         setUserInfo(null);
       });
   }, [setUserInfo]);
@@ -37,7 +37,7 @@ export default function Header() {
         navigate("/");
       })
       .catch((error) => {
-        console.error('Error during logout:', error);
+        console.error("Error during logout:", error);
       });
   }
 
@@ -45,7 +45,7 @@ export default function Header() {
 
   function handleLogoClick() {
     if (username) {
-      navigate("/index");
+      navigate("/home");
     } else {
       navigate("/");
     }
@@ -53,7 +53,11 @@ export default function Header() {
 
   return (
     <header className="NavBar">
-      <div onClick={handleLogoClick} className="logo" style={{ cursor: "pointer" }}>
+      <div
+        onClick={handleLogoClick}
+        className="logo"
+        style={{ cursor: "pointer" }}
+      >
         Memosac
       </div>
 
@@ -67,10 +71,14 @@ export default function Header() {
               onClick={() => setDropdownOpen(!dropdownOpen)}
               style={{ cursor: "pointer" }}
             >
-              <>Hey, <b>{username}</b></>
+              <>
+                Hey, <b>{username}</b>
+              </>
               {dropdownOpen && (
                 <div className="dropdown-menu">
-                  <a onClick={logout} style={{ cursor: "pointer" }}>Logout</a>
+                  <a onClick={logout} style={{ cursor: "pointer" }}>
+                    Logout
+                  </a>
                 </div>
               )}
             </div>

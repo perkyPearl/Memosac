@@ -29,7 +29,7 @@ export default function LoginPage() {
         if (!username || !password) {
             return "Both username and password are required";
         }
-        return null; // No errors
+        return null;
     };
 
     const login = async (ev) => {
@@ -104,7 +104,7 @@ export default function LoginPage() {
     };
 
     if (redirect) {
-        return <Navigate to="/index" />;
+        return <Navigate to="/home" />;
     }
 
     return (
