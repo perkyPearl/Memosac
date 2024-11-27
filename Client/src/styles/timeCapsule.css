@@ -1,0 +1,106 @@
+.time-capsule-container {
+    max-width: 80vw;
+    margin: 0px auto;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.file-upload {
+    margin-bottom: 20px;
+    border: 2px dashed #ccc;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.file-upload.active {
+    border-color: #4caf50;
+    background-color: #e8f5e9;
+}
+
+.upload-box p {
+    color: #777;
+}
+
+.upload-box:hover {
+    border-color: #666;
+}
+
+.release-date-time {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.release-date-time label {
+    font-weight: bold;
+    color: #555;
+}
+
+.release-date-time input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.file-list {
+    margin-bottom: 20px;
+}
+
+.file-list h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.file-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.file-list li {
+    padding: 8px;
+    background-color: #fff;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-list li:nth-child(odd) {
+    background-color: #f1f1f1;
+}
+
+.progress-bar {
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    height: 8px;
+}
+
+.progress-bar::after {
+    content: '';
+    display: block;
+    background-color: #4caf50;
+    width: 0;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress-bar[data-progress="0"]::after {
+    width: 0;
+}
+
+.progress-bar[data-progress="100"]::after {
+    width: 100%;
+}
+
+.upload-status {
+    text-align: center;
+    color: #4caf50;
+    margin-top: 10px;
+    font-weight: bold;
+}

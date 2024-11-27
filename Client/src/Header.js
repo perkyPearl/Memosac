@@ -65,6 +65,7 @@ export default function Header() {
         {username ? (
           <>
             <Link to="/create">Create new post</Link>
+            <Link to="/timecapsule">Create new time Capsule</Link>
             <Link to="/gallery">Your Gallery</Link>
             <div
               className="dropdown"
@@ -76,6 +77,9 @@ export default function Header() {
               </>
               {dropdownOpen && (
                 <div className="dropdown-menu">
+                  <a href="/profile" style={{ cursor: "pointer" }}>
+                    Profile
+                  </a>
                   <a onClick={logout} style={{ cursor: "pointer" }}>
                     Logout
                   </a>

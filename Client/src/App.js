@@ -11,6 +11,8 @@ import Gallery from "./pages/Gallery";
 import CreatePost from "./pages/CreatePost";
 import PostPage from "./pages/PostPage";
 import EditPost from "./pages/EditPost";
+import ProfilePage from "./pages/ProfilePage"
+import TimeCapsule from "./pages/TimeCapsule";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             <Route path="/create" element={<CreatePost />} />
             <Route path="/post/:id" element={<PostPage />} />
             <Route path="/edit/:id" element={<EditPost />} />
+            <Route path="/profile" element={<ProfilePage/>}></Route>
+            <Route path="/timecapsule" element={<TimeCapsule/>}></Route>
           </Route>
         </Routes>
       </UserContextProvider>

@@ -25,19 +25,6 @@ const client = new S3Client({
   },
 });
 
-const authenticateToken = (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) return res.status(401).json({ message: "No token provided" });
-
-  jwt.verify(token, secret, (err, user) => {
-    if (err)
-      return res.status(403).json({ message: "Invalid or expired token" });
-    req.user = user;
-    next();
-  });
-};
-
 mongoose
   .connect(process.env.MongoDBURI)
   .then(() => console.log("MongoDB connected"))
@@ -49,6 +36,8 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+app.use("/time-capsules", require("./routes/timeCapsules"))
 
 app.post("/google-login", async (req, res) => {
   const { username, email, profilePic } = req.body;
@@ -162,7 +151,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/create-post", upload.single("file"), async (req, res) => {
+app.post("/create", upload.single("file"), async (req, res) => {
   try {
     const fileKey = `${Date.now()}_${req.file.originalname}`;
 
@@ -215,7 +204,7 @@ app.get("/posts", async (req, res) => {
   }
 });
 
-app.get("/post/:id", authenticateToken, async (req, res) => {
+app.get("/post/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const post = await PostModel.findById(id);

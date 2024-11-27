@@ -11,6 +11,7 @@ export default function PostPage() {
   useEffect(() => {
     fetch(`http://localhost:4000/post/${id}`).then((response) => {
       response.json().then((postInfo) => {
+        console.log(postInfo)
         setPostInfo(postInfo);
       });
     });
@@ -24,9 +25,9 @@ export default function PostPage() {
         <div>
           <h1>{postInfo.title}</h1>
           <time>{formatISO9075(new Date(postInfo.createdAt))}</time>
-          <div className="author">by @{postInfo.author.username}</div>
+          {/* <div className="author">by @{postInfo.author}</div> */}
         </div>
-        {userInfo.id === postInfo.author._id && (
+        {/* {userInfo.id === postInfo.author._id && (
           <div className="edit-row">
             <Link className="edit-btn" to={`/edit/${postInfo._id}`}>
               <svg
@@ -44,12 +45,12 @@ export default function PostPage() {
                 />
               </svg>
               Edit this post
-            </Link>
-          </div>
-        )}
+            </Link> */}
+          {/* </div> */}
+        {/* )} */}
       </div>
       <div className="image">
-        <img src={`http://localhost:4000/${postInfo.cover}`} alt="" />
+        <img src={postInfo.cover} alt="" />
       </div>
       <div
         className="content"
