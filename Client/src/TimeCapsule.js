@@ -7,7 +7,7 @@ export default function TimeCapsule() {
 
   useEffect(() => {
     const fetchTimeCapsule = async () => {
-      const response = await fetch(`/api/time-capsules/${id}`);
+      const response = await fetch(`/time-capsules/${id}`);
       const data = await response.json();
       setTimeCapsule(data);
     };

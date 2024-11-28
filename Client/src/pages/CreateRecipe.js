@@ -2,22 +2,21 @@ import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
-import "../styles/Recipes.css"
+import "../styles/Reciepe.css";
 
 export const CreateRecipe = () => {
   const { setUserInfo, userInfo } = useContext(UserContext);
-  const userID = userInfo?.id; 
+  const userID = userInfo?.id;
 
   const [recipe, setRecipe] = useState({
-    name: "",
-    description: "",
-    ingredients: [],
-    instructions: "",
-    imageUrl: "",
-    cookingTime: 0,
-    category: "",
-    tags: [],
-    userOwner: userID,
+    name: "Spaghetti Carbonara",   // Default name
+    description: "A classic Italian pasta dish",  // Default description
+    ingredients: ["Spaghetti", "Eggs", "Pancetta", "Parmesan cheese"],  // Default ingredients
+    instructions: "Cook pasta, fry pancetta, mix with eggs and cheese.",  // Default instructions
+    imageUrl: "https://example.com/spaghetti-carbonara.jpg",  // Default image URL
+    cookingTime: 30,  // Default cooking time (in minutes)
+    category: "Dinner",  // Default category
+    tags: ["Italian", "Pasta", "Main Course"],  // Default tags
   });
 
   const navigate = useNavigate();
@@ -39,12 +38,10 @@ export const CreateRecipe = () => {
     setRecipe({ ...recipe, ingredients });
   };
 
-  // Handle category selection
   const handleCategoryChange = (event) => {
     setRecipe({ ...recipe, category: event.target.value });
   };
 
-  // Handle tags input (comma-separated values)
   const handleTagsChange = (event) => {
     const { value } = event.target;
     const tagsArray = value.split(",").map(tag => tag.trim()); // Split by comma and trim whitespace
@@ -55,12 +52,12 @@ export const CreateRecipe = () => {
     event.preventDefault();
     try {
       await axios.post(
-        "http://localhost:3000/recipes/create",
+        "http://localhost:4000/recipes/create",
         { ...recipe },
       );
 
       alert("Recipe Created");
-      navigate("/");
+      navigate("/recipes");
     } catch (error) {
       console.error(error);
     }

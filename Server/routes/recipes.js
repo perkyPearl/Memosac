@@ -1,34 +1,50 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const RecipesModel = require("../models/Recipes"); // Corrected the import
-const UserModel = require("../models/User"); // Assuming you have a User model
+const RecipesModel = require("../models/Recipes"); 
+const UserModel = require("../models/User"); 
 const router = express.Router();
 
-// Get all recipes
 router.get("/", async (req, res) => {
+  const { search, category, tags } = req.query;
+  const query = {};
+
+  if (search) {
+    query.name = { $regex: search, $options: "i" };
+  }
+
+  if (category) {
+    query.category = category;
+  }
+
+  if (tags) {
+    query.tags = { $in: tags.split(",") };
+  }
+
   try {
-    const result = await RecipesModel.find({});
-    res.status(200).json(result);
+    const recipes = await RecipesModel.find(query);
+    res.status(200).json(recipes);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
-// Create a new recipe
+
 router.post("/create", async (req, res) => {
-  const recipe = new RecipesModel({
-    _id: new mongoose.Types.ObjectId(),
-    name: req.body.name,
-    imageUrl: req.body.imageUrl,
-    ingredients: req.body.ingredients,
-    instructions: req.body.instructions,
-    cookingTime: req.body.cookingTime,
-    category: req.body.category,
-    tags: req.body.tags,
-    userOwner: req.body.userOwner,
-  });
+  const { name, imageUrl, ingredients, instructions ,description, cookingTime, category, tags } = req.body;
 
   try {
+    const recipe = new RecipesModel({
+      _id: new mongoose.Types.ObjectId(),
+      name,
+      imageUrl,
+      description,
+      ingredients,
+      instructions,
+      cookingTime,
+      category,
+      tags,
+    });
+
     const result = await recipe.save();
     res.status(201).json({
       createdRecipe: {
@@ -43,7 +59,7 @@ router.post("/create", async (req, res) => {
       },
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json(err);
   }
 });

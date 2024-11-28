@@ -21,7 +21,7 @@ const Homepage = () => {
         <a href="/gallery" className="box box-gallery">
           Gallery
         </a>
-        <a href="/recipe" className="box box-recipe">
+        <a href="/recipes" className="box box-recipe">
           Recipe
         </a>
       </div>
