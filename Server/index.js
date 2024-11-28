@@ -10,6 +10,9 @@ const bodyParser = require("body-parser");
 const { S3Client } = require("@aws-sdk/client-s3");
 const multer = require("multer");
 const { Upload } = require("@aws-sdk/lib-storage");
+const galleryRoutes = require("./routes/galleryRoutes");
+const albumRoutes = require("./routes/albumRoutes");
+const path = require("path");
 
 const app = express();
 const salt = bcrypt.genSaltSync(10);
@@ -37,7 +40,12 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-app.use("/time-capsules", require("./routes/timeCapsules"))
+app.use("/api", galleryRoutes);
+app.use("/api/albums", albumRoutes);
+app.use("/recipes", require("./routes/recipes"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/user", require("./routes/userRoutes"))
+app.use("/timecapsule",require("./routes/timeCapsules"))
 
 app.post("/google-login", async (req, res) => {
   const { username, email, profilePic } = req.body;
@@ -155,6 +163,8 @@ app.post("/create", upload.single("file"), async (req, res) => {
   try {
     const fileKey = `${Date.now()}_${req.file.originalname}`;
 
+    console.log(req.body)
+
     const uploadParams = {
       Bucket: "memosac.bucket",
       Key: `uploads/posts/${fileKey}`,
@@ -181,6 +191,7 @@ app.post("/create", upload.single("file"), async (req, res) => {
       summary: req.body.summary,
       content: req.body.content,
       cover: s3Url,
+      author: req.body.author
     });
 
     await newPost.save();
@@ -196,7 +207,7 @@ app.post("/create", upload.single("file"), async (req, res) => {
 
 app.get("/posts", async (req, res) => {
   try {
-    const posts = await PostModel.find();
+    const posts = await PostModel.find().populate("author", "_id username");
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);

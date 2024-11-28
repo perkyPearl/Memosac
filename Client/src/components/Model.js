@@ -1,5 +1,6 @@
 import React from "react";
 import { getImageUrl } from "../apicalls";
+import "../styles/Gallery.css";
 
 const Model = ({ selectedImg, setSelectedImg }) => {
   const handleClose = (e) => {

@@ -11,8 +11,12 @@ import Gallery from "./pages/Gallery";
 import CreatePost from "./pages/CreatePost";
 import PostPage from "./pages/PostPage";
 import EditPost from "./pages/EditPost";
-import ProfilePage from "./pages/ProfilePage"
+import ProfilePage from "./pages/ProfilePage";
 import TimeCapsule from "./pages/TimeCapsule";
+import { CreateRecipe } from "./pages/CreateRecipe";
+import Homepage from "./pages/Homepage";
+import TimeCapsulePage from "./pages/TimeCapsulePage";
+import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   return (
@@ -23,13 +27,88 @@ function App() {
             <Route index element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/home" element={<IndexPage />} />
-            <Route path="/create" element={<CreatePost />} />
-            <Route path="/post/:id" element={<PostPage />} />
-            <Route path="/edit/:id" element={<EditPost />} />
-            <Route path="/profile" element={<ProfilePage/>}></Route>
-            <Route path="/timecapsule" element={<TimeCapsule/>}></Route>
+            
+            {/* Protected routes */}
+            <Route 
+              path="/gallery" 
+              element={
+                <ProtectedRoute>
+                  <Gallery />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/home" 
+              element={
+                <ProtectedRoute>
+                  <Homepage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/posts" 
+              element={
+                <ProtectedRoute>
+                  <IndexPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create" 
+              element={
+                <ProtectedRoute>
+                  <CreatePost />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/post/:id" 
+              element={
+                <ProtectedRoute>
+                  <PostPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/edit/:id" 
+              element={
+                <ProtectedRoute>
+                  <EditPost />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create-timecapsule" 
+              element={
+                <ProtectedRoute>
+                  <TimeCapsule />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/timecapsule" 
+              element={
+                <ProtectedRoute>
+                  <TimeCapsulePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/createRecipe" 
+              element={
+                <ProtectedRoute>
+                  <CreateRecipe />
+                </ProtectedRoute>
+              } 
+            />
           </Route>
         </Routes>
       </UserContextProvider>

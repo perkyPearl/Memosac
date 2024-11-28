@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import "../styles/timeCapsule.css"
+import "../styles/timeCapsule.css";
 
 const TimeCapsule = () => {
   const [files, setFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
-  const [releaseDate, setReleaseDate] = useState('');
-  const [releaseTime, setReleaseTime] = useState('');
+  const [releaseDate, setReleaseDate] = useState('2024-12-01');
+  const [releaseTime, setReleaseTime] = useState('12:00');
   const [uploadStatus, setUploadStatus] = useState('');
   const [dragActive, setDragActive] = useState(false);
 
@@ -31,21 +31,20 @@ const TimeCapsule = () => {
     }
 
     const fullReleaseDateTime = `${releaseDate} ${releaseTime}`;
-
     setUploadStatus('Uploading...');
     const uploadPromises = files.map((file) => uploadFile(file, fullReleaseDateTime));
 
     Promise.all(uploadPromises).then(() => {
-      setUploadStatus('Upload complete! Time Capsule will open on ' + fullReleaseDateTime);
+      setUploadStatus(`Upload complete! Time Capsule will open on ${fullReleaseDateTime}`);
     });
   };
 
   const uploadFile = (file, releaseDateTime) => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('files', file);
     formData.append('releaseDateTime', releaseDateTime);
 
-    return fetch('http://localhost:4000/timecapsules', {
+    return fetch('http://localhost:4000/timecapsule', {
       method: 'POST',
       body: formData,
     })

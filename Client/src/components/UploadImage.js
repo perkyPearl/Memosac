@@ -1,24 +1,30 @@
 import React, { useState } from "react";
 import ProgressBar from "./ProgressBar";
-import { displayName } from "react-quill";
+import "../styles/Gallery.css";
 
 const UploadImage = ({ setReload }) => {
-    const type = ["image/jpeg", "image/svg+xml", "image/png"];
+    const allowedTypes = [
+        "image/jpeg",
+        "image/svg+xml",
+        "image/png",
+        "image/jpg",
+        "image/gif",
+        "image/webp"
+    ];
 
     const [values, setValues] = useState({
-        file: "",
+        file: null, // Allow `null` initially
         formData: new FormData(),
         error: "",
     });
 
-    const { file, error } = values;
-
     const handleChange = (e) => {
         const value = e.target.files[0];
+        if (!value) return;
 
-        if (value && type.includes(value.type)) {
+        if (allowedTypes.includes(value.type)) {
             const newFormData = new FormData();
-            newFormData.set("image", value);
+            newFormData.append("image", value);
 
             setValues({
                 file: value,
@@ -26,10 +32,7 @@ const UploadImage = ({ setReload }) => {
                 error: "",
             });
         } else {
-            setValues({
-                ...values,
-                error: "Invalid file format",
-            });
+            setValues({ ...values, error: "Invalid file format" });
         }
     };
 
@@ -38,20 +41,20 @@ const UploadImage = ({ setReload }) => {
             <h1>Public Photo Gallery</h1>
             <label>
                 <input
-                    onChange={handleChange}
                     type="file"
-                    placeholder="Choose file"
-                style={{display:"none"}}/>
+                    onChange={handleChange}
+                    style={{ display: "none" }}
+                />
                 <span className="add-btn">Add Image</span>
             </label>
-            {file && (
+            {values.file && (
                 <ProgressBar
                     setReload={setReload}
                     values={values}
                     setValues={setValues}
                 />
             )}
-            {error && <h1 className="error">{error}</h1>}
+            {values.error && <h1 className="error">{values.error}</h1>}
         </form>
     );
 };
