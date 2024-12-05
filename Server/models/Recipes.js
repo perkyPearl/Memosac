@@ -8,7 +8,7 @@ const recipeSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
   cookingTime: { type: Number, required: true },
   category: { type: String, required: true },
-  tags: { type: [String], required: true },
+  tags: { type: [String]},
 });
 
 const Recipe = mongoose.model('Recipe', recipeSchema);

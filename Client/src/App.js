@@ -18,6 +18,7 @@ import RecipeHome from "./pages/receipeHome";
 import Homepage from "./pages/Homepage";
 import TimeCapsulePage from "./pages/TimeCapsulePage";
 import RecipeDetail from "./pages/ReceipeDetials";
+import TimeCapsuleDetail from "./pages/TimeCapsuleDetail";
 
 function App() {
   return (
@@ -37,10 +38,11 @@ function App() {
             <Route path="/edit/:id" element={<EditPost />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/recipes" element={<RecipeHome />} />
+            <Route path="/create-recipe" element={<CreateRecipe />} />
             <Route path="/recipes/:recipeId" element={<RecipeDetail />} />
             <Route path="/create-timecapsule" element={<TimeCapsule />} />
             <Route path="/timecapsule" element={<TimeCapsulePage />} />
-            <Route path="/create-recipe" element={<CreateRecipe />} />
+            <Route path="/timecapsule/:id" element={<TimeCapsuleDetail />} />x
           </Route>
         </Routes>
       </UserContextProvider>

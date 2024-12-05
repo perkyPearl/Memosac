@@ -1,8 +1,6 @@
 .time-capsule-container {
     max-width: 80vw;
     margin: 0px auto;
-    padding: 20px;
-    border-radius: 10px;
 }
 
 .file-upload {
@@ -103,4 +101,61 @@
     color: #4caf50;
     margin-top: 10px;
     font-weight: bold;
+}
+
+.capsules-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.capsule-card {
+    width: 100%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    transition: all 0.3s ease-in-out;
+    animation: slideIn 1s ease-out;
+}
+
+.capsule-card:hover {
+    transform: scale(1.05);
+}
+
+.capsule-card.unlocked {
+    background-color: #c1ffc1;
+    /* Light green for unlocked */
+}
+
+.capsule-card.locked {
+    background-color: #ffcccc;
+    /* Light red for locked */
+}
+
+.time-remaining {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #007bff;
+}
+
+.capsule-detail {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

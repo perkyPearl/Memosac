@@ -118,7 +118,7 @@ const TimeCapsule = () => {
           <ul>
             {files.map((file, index) => (
               <li key={index}>
-                {file.name} - {uploadProgress[file.name] || 0}% uploaded
+                {file.name} - {uploadProgress[file.name] || 0} uploaded
               </li>
             ))}
           </ul>
