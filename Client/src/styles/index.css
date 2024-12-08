@@ -18,4 +18,30 @@ code {
   justify-content: center;
   align-items: center;
   height: 70vh;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.index-page {
+  padding: 20px;
+}
+
+.search-input {
+  width: 80vw;
+  margin: auto;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.no-posts-text {
+  font-size: 24px;
+  color: #333;
+}
+
+.no-posts-subtext {
+  font-size: 16px;
+  color: #777;
 }

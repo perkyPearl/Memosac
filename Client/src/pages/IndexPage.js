@@ -1,21 +1,49 @@
-import Post from "../Post";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import Post from '../Post';
+import { useUser } from '../UserContext';
 
 export default function IndexPage() {
   const [posts, setPosts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { userInfo } = useUser();
   let i = 0;
 
   useEffect(() => {
-    fetch('http://localhost:4000/posts')
-      .then(response => response.json())
-      .then(posts => setPosts(posts))
-      .catch(err => console.error(err));
-  }, []);
+    if (userInfo) {
+      fetch('http://localhost:4000/posts', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: userInfo.id })
+      })
+        .then(response => response.json())
+        .then(posts => setPosts(posts))
+        .catch(err => console.error(err));
+    }
+  }, [userInfo]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredPosts = posts.filter(post =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (post.tags && post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+  );
 
   return (
     <div className="index-page">
-      {posts.length > 0 ? (
-        posts.map(post => (
+      <input
+        type="text"
+        placeholder="Search posts..."
+        value={searchQuery}
+        onChange={handleSearchChange}
+        className="search-input"
+      />
+      {filteredPosts.length > 0 ? (
+        filteredPosts.map(post => (
           <Post key={i++} {...post} />
         ))
       ) : (

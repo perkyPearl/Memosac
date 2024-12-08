@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import CreateAlbum from "../components/CreateAlbum";
 import "../styles/Album.css";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from 'react-toastify';
+// import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -13,7 +14,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
     rel="stylesheet"
 /> */
 
-toast.configure();
+// toast.configure();
 
 const AlbumDashboard = () => {
     // const [token, setToken] = useState(null);

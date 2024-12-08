@@ -3,6 +3,18 @@
     margin: 0 auto;
 }
 
+.home-flex{
+    display: flex;
+    width: 80vw;
+    margin: auto;
+}
+
+.quote-section{
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 .box-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
