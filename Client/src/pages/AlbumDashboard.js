@@ -1,26 +1,39 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import CreateAlbum from '../components/CreateAlbum';
 import "../styles/Album.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// import { useNavigate } from 'react-router-dom';  // Import useNavigate
+
+toast.configure();
 
 const AlbumDashboard = () => {
-    const [token, setToken] = useState(null);
-    const[isTokenLoaded, setIsTokenLoaded] = useState(false);
-    console.log("Token from localStorage:", token);
+    // const [token, setToken] = useState(null);
+    // const [isTokenLoaded, setIsTokenLoaded] = useState(false);
+    // const [error, setError] = useState(null); // Error state to display error messages
+    // const [albums, setAlbums] = useState([]);
+    // const navigate = useNavigate(); // Get navigate function
 
-    useEffect(()=>{
-        const storedToken = localStorage.getItem("token");
-        setToken(storedToken);
-        setIsTokenLoaded(true);
-    },[]);
+    // console.log("Token from localStorage:", token);
+
+    // useEffect(() => {
+    //     const storedToken = localStorage.getItem("token");
+    //     console.log("Stored Token:", storedToken);
+    //     setToken(storedToken);
+    //     setIsTokenLoaded(true);
+    // }, []);
 
     const handleAlbumCreated = () => {
         console.log("Your keepsakes are successfully preserved in Memosac");
-        alert("New Memosac Successfully Preserved")
+        toast.success("New Memosac Successfully Preserved");
     };
 
-    if (!isTokenLoaded) {
-        return <p>Loading...</p>;
-    }
+    // const handleAlbumError = (errorMsg) => {
+    //     setError(errorMsg); // Set the error message if album creation fails
+    // };
+    // if (!isTokenLoaded) {
+    //     return <p>Loading...</p>;
+    // }
 
     return (
         <div
@@ -29,19 +42,16 @@ const AlbumDashboard = () => {
                 fontFamily: "Arial, sans-serif",
                 textAlign: "center",
             }}>
-            <h1 className="maintitle">Preserve Your Cherished Memories</h1>
+            <h1 className="maintitle"> Preserve Your Cherished Memories </h1>
             <p className="maintitlepara">
-                "What will your Memosac be called?" Start creating your album
-                and keep your memories alive!
+                "What will your Memosac be called?" Start creating your album and keep your memories alive!
             </p>
-            {token ? (
+    
                 <CreateAlbum
-                    token={token}
+                    // token={token}
                     onAlbumCreated={handleAlbumCreated}
                 />
-            ) : (
-                <p>Please log in to create an album</p>
-            )}
+           
         </div>
     );
 }

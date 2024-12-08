@@ -13,10 +13,11 @@ const { Upload } = require("@aws-sdk/lib-storage");
 const galleryRoutes = require("./routes/galleryRoutes");
 const albumRoutes = require("./routes/albumRoutes");
 const path = require("path");
+const Grid = require("gridfs-stream");
 
 const app = express();
 const salt = bcrypt.genSaltSync(10);
-const secret = "jhdbw";
+// const secret = "jhdbw";
 
 require('dotenv').config();
 
@@ -27,6 +28,7 @@ const client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+console.log("MongoDB URI:", process.env.MongoDBURI);
 
 mongoose
   .connect(process.env.MongoDBURI)
@@ -39,6 +41,8 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
 
 app.use("/api", galleryRoutes);
 app.use("/api/albums", albumRoutes);
@@ -46,6 +50,33 @@ app.use("/recipes", require("./routes/recipes"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/user", require("./routes/userRoutes"))
 app.use("/timecapsule",require("./routes/timeCapsules"))
+
+// Initialize GridFS stream
+// let gfs;
+// mongoose.connection.once('open', () => {
+//   gfs = Grid(mongoose.connection.db, mongoose.mongo);
+//   gfs.collection('uploads');
+//   console.log("GridFS MongoDB connected");
+// });
+
+// Serve files from MongoDB
+app.get('/uploads/:filename', (req, res) => {
+    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+      if (err) {
+          return res.status(500).json({ error: "Error retrieving file" });
+      }
+        if (!file || file.length === 0) {
+            return res.status(404).json({ err: 'File not found' });
+        }
+        const readStream = gfs.createReadStream({filename: file.filename});
+        res.set('Content-Type', file.contentType);
+        readStream.on("error", (err) => {
+            console.error("Stream error:", err);
+            res.status(500).send("Error streaming file");
+        });
+        readStream.pipe(res);
+    });
+});
 
 app.post("/google-login", async (req, res) => {
   const { username, email, profilePic } = req.body;
@@ -65,7 +96,7 @@ app.post("/google-login", async (req, res) => {
       await user.save();
     }
 
-    const token = jwt.sign({ username, id: user._id }, secret, {
+    const token = jwt.sign({ username, id: user._id }, process.env.PRIVATE_KEY, {
       expiresIn: "7d",
     });
 
@@ -104,8 +135,8 @@ app.post("/login", async (req, res) => {
     if (isPasswordValid) {
       const token = jwt.sign(
         { id: user._id, username: user.username },
-        secret,
-        { expiresIn: "1h" }
+        process.env.PRIVATE_KEY,
+        { expiresIn: "24h" }
       );
       res
         .cookie("token", token, {
@@ -242,7 +273,7 @@ app.get("/profile", (req, res) => {
 
   if (!token) return res.status(401).json({ message: "No token provided" });
 
-  jwt.verify(token, secret, (err, info) => {
+  jwt.verify(token, process.env.PRIVATE_KEY, (err, info) => {
     if (err)
       return res.status(403).json({ message: "Invalid or expired token" });
     res.json(info);

@@ -13,14 +13,14 @@ const albumSchema = new mongoose.Schema(
             default: "No description added",
         },
         coverImage: {
-            type: Buffer,
-            ref: "Gallery",
+            type: String,
+            // ref: "Gallery",
         },
         images: [
             {
-                //arr of images
-                type: Buffer,
-                ref: "Gallery",
+                type: String,
+                // ref: "Gallery",
+                required: true,
             },
         ],
         tags: [
@@ -29,6 +29,7 @@ const albumSchema = new mongoose.Schema(
                 type: String,
                 trim: true,
                 maxlength: 30,
+                default: [],
             },
         ],
         isPublic: {
@@ -38,6 +39,7 @@ const albumSchema = new mongoose.Schema(
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
+            required: true,
         },
         sharedWith: [
             {
@@ -77,6 +79,7 @@ const albumSchema = new mongoose.Schema(
                 user: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "User",
+                    required: true,
                 },
                 timestamp: {
                     type: Date,

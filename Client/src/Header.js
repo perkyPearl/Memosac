@@ -66,6 +66,7 @@ export default function Header() {
           <>
             <Link to="/create">Create new post</Link>
             <Link to="/timecapsule">Create new time Capsule</Link>
+            <Link to="/albums">Memory Vault</Link>
             <Link to="/gallery">Your Gallery</Link>
             <div
               className="dropdown"
