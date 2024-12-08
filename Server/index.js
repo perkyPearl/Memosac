@@ -218,7 +218,7 @@ app.get("/posts", async (req, res) => {
 app.get("/post/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const post = await PostModel.findById(id);
+    const post = await PostModel.findById(id).populate("author", "_id username");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -235,6 +235,16 @@ app.get("/post/:id", async (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.json({ message: "Successfully logged out" });
+});
+
+app.get('/reminders', async (req, res) => {
+  const userId = req.user.id;
+
+  const reminders = await Reminder.find({ user_id: userId, is_notified: false })
+    .where('scheduled_time').gte(new Date())
+    .sort('scheduled_time');
+
+  res.status(200).send(reminders);
 });
 
 app.get("/profile", (req, res) => {
