@@ -13,6 +13,7 @@ export default function CreatePost() {
   const [files, setFiles] = useState('');
   const [redirect, setRedirect] = useState(false);
   const [enhancing, setEnhancing] = useState(false); 
+  
   async function createNewPost(ev) {
     ev.preventDefault();
     const data = new FormData();

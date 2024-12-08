@@ -1,80 +1,100 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';  // Import useNavigate
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../styles/timeCapsule.css";
 
-const TimeCapsulesList = () => {
+function getTimeRemaining(scheduledDate) {
+  const now = new Date();
+  const releaseDate = new Date(scheduledDate);
+  const timeDiff = releaseDate - now;
+
+  if (timeDiff <= 0) {
+    return "Released";
+  }
+
+  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((timeDiff / 1000 / 60) % 60);
+  const seconds = Math.floor((timeDiff / 1000) % 60);
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
+export default function TimeCapsulePage() {
   const [timeCapsules, setTimeCapsules] = useState([]);
-  const navigate = useNavigate();  // Initialize navigate
-
-  // Function to calculate the remaining time
-  const getTimeRemaining = (scheduledDate) => {
-    const now = new Date();
-    const releaseDate = new Date(scheduledDate);
-    const timeDifference = releaseDate - now;
-
-    if (timeDifference <= 0) {
-      return 'Released!';
-    }
-
-    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-
-    return `${days}d ${hours}h ${minutes}m remaining`;
-  };
+  const [timeRemaining, setTimeRemaining] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:4000/timecapsule')
+    fetch("http://localhost:4000/timecapsule", {
+      credentials: "include",
+    })
       .then((response) => response.json())
-      .then((data) => {setTimeCapsules(data)
-        console.log(data)
+      .then((data) => {
+        setTimeCapsules(data);
+        const initialTimeRemaining = data.reduce((acc, capsule) => {
+          acc[capsule._id] = getTimeRemaining(capsule.scheduled_date);
+          return acc;
+        }, {});
+        setTimeRemaining(initialTimeRemaining);
       })
-      .catch((error) => console.error('Error fetching time capsules:', error));
+      .catch((err) => console.error(err));
   }, []);
 
-  return (
-    <div className='time-capsule-container'>
-      <h1>Your Time Capsules</h1>
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeRemaining((prevTimeRemaining) => {
+        const updatedTimeRemaining = { ...prevTimeRemaining };
+        timeCapsules.forEach((capsule) => {
+          updatedTimeRemaining[capsule._id] = getTimeRemaining(
+            capsule.scheduled_date
+          );
+        });
+        return updatedTimeRemaining;
+      });
+    }, 1000);
 
-      {/* Button to route to create-timecapsule page */}
-      <button onClick={() => navigate('/create-timecapsule')}>
-        Create a Time Capsule
-      </button>
+    return () => clearInterval(interval);
+  }, [timeCapsules]);
+
+  const handleCardClick = (capsule) => {
+    if (timeRemaining[capsule._id] === "Released") {
+      navigate(`/timecapsule/${capsule._id}`);
+    } else {
+      toast.error("This time capsule is locked.");
+    }
+  };
+
+  return (
+    <div className="time-capsule-container">
+      <ToastContainer />
+      <div className="time-capsule-heading">
+        <h1>Your Time Capsules</h1>
+
+        <button onClick={() => navigate("/create-timecapsule")}>
+          Create a Time Capsule
+        </button>
+      </div>
 
       {timeCapsules.length === 0 ? (
         <p>No time capsules available</p>
       ) : (
-        <div className="">
+        <div className="capsules-grid">
           {timeCapsules.map((capsule) => (
-            <div key={capsule._id} className={`capsule-card ${capsule.status}`} style={{ width: '100%' }}>
-              <h3>{capsule.title || 'Untitled Capsule'}</h3>
-              <p>Status: {capsule.status}</p>
-              <p>Release Date: {new Date(capsule.scheduled_date).toLocaleString()}</p>
-              <p className="time-remaining">
-                {getTimeRemaining(capsule.scheduled_date)}
-              </p>
-              {capsule.status === 'unlocked' && (
-                <div>
-                  <p>Content: {capsule.content || 'No content available'}</p>
-                  {capsule.files.length > 0 && (
-                    <div>
-                      <h4>Files:</h4>
-                      {capsule.files.map((file, index) => (
-                        <a key={index} href={file} target="_blank" rel="noopener noreferrer">
-                          File {index + 1}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              <Link to={`/timecapsule/${capsule._id}`}>View Details</Link>
+            <div
+              key={capsule._id}
+              className="capsule-card"
+              onClick={() => handleCardClick(capsule)}
+            >
+              <div className="capsule-content">
+                <h3>{capsule.title || "Untitled Capsule"}</h3>
+              </div>
+              <div className="time-remaining">{timeRemaining[capsule._id]}</div>
             </div>
           ))}
         </div>
       )}
     </div>
   );
-};
-
-export default TimeCapsulesList;
+}

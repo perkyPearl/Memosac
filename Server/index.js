@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const User = require("./models/User");
-const PostModel = require("./models/Post");
+const Post = require("./models/Post"); // Adjust the path as necessary
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -16,13 +16,9 @@ const path = require("path");
 
 require('dotenv').config();
 
-// Check if PRIVATE_KEY is loaded
-console.log("JWT Private Key:", process.env.PRIVATE_KEY); // Ensure this logs the correct key
-
 const app = express();
 const salt = bcrypt.genSaltSync(10);
 
-// AWS S3 Client setup
 const client = new S3Client({
   region: process.env.AWS_Region,
   credentials: {
@@ -190,7 +186,7 @@ app.post("/create", upload.single("file"), async (req, res) => {
 
     const s3Url = `https://${uploadParams.Bucket}.s3.${region}.amazonaws.com/${uploadParams.Key}`;
 
-    const newPost = new PostModel({
+    const newPost = new Post({
       title: req.body.title,
       summary: req.body.summary,
       content: req.body.content,
@@ -209,9 +205,13 @@ app.post("/create", upload.single("file"), async (req, res) => {
   }
 });
 
-app.get("/posts", async (req, res) => {
+app.post("/posts", async (req, res) => {
+  const userId = req.body.userId;
+
   try {
-    const posts = await PostModel.find().populate("author", "_id username");
+    const posts = await Post.find({ author: userId })
+      .populate("author", "_id username")
+      .sort({ createdAt: -1 }); 
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);
@@ -222,7 +222,7 @@ app.get("/posts", async (req, res) => {
 app.get("/post/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const post = await PostModel.findById(id).populate("author", "_id username");
+    const post = await Post.findById(id).populate("author", "_id username");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });

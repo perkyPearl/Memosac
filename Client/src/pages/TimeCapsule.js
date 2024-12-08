@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "../styles/timeCapsule.css";
+import { UserContext } from '../UserContext';
 
 const ProgressBar = ({ progress }) => {
   return (
@@ -12,6 +13,7 @@ const ProgressBar = ({ progress }) => {
 };
 
 const TimeCapsule = () => {
+  const { userInfo } = useContext(UserContext);
   const [files, setFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
   const [releaseDate, setReleaseDate] = useState('2024-12-01');
@@ -61,6 +63,7 @@ const TimeCapsule = () => {
     formData.append('files', file);
     formData.append('releaseDateTime', releaseDateTime);
     formData.append('title', title);
+    formData.append('userId',userInfo.id);
 
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -114,7 +117,7 @@ const TimeCapsule = () => {
 
   return (
     <div className="time-capsule-container">
- <h1>Time Capsule</h1>
+      <h1>Time Capsule</h1>
 
       <div className="release-date-time">
         <label>Set Title: </label>

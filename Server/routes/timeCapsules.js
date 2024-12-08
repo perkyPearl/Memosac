@@ -1,6 +1,6 @@
 const express = require('express');
-const TimeCapsule = require('../models/TimeCapsule');
 const router = express.Router();
+const TimeCapsule = require('../models/TimeCapsule'); // Adjust the path as necessary
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const cors = require('cors');
@@ -17,9 +17,11 @@ const s3 = new AWS.S3();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Create a new time capsule
 router.post("/", upload.array('files'), async (req, res) => {
   const { title, releaseDateTime } = req.body;
   const files = req.files;
+  const userId = req.body.userId;
 
   if (!files || files.length === 0) {
     return res.status(400).json({ error: 'No files uploaded.' });
@@ -45,6 +47,7 @@ router.post("/", upload.array('files'), async (req, res) => {
       files: results.map(result => result.Location),
       scheduled_date: new Date(releaseDateTime),
       status: 'locked',
+      author: userId,
     });
 
     await newTimeCapsule.save();
@@ -59,9 +62,10 @@ router.post("/", upload.array('files'), async (req, res) => {
   }
 });
 
+// Get all time capsules
 router.get("/", async (req, res) => {
   try {
-    const capsules = await TimeCapsule.find({});
+    const capsules = await TimeCapsule.find({}, 'title scheduled_date'); // Project title and scheduled_date fields
     res.status(200).json(capsules);
   } catch (error) {
     console.error('Error fetching time capsules:', error);
@@ -69,6 +73,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get a specific time capsule by ID
 router.get('/:id', async (req, res) => {
   const timeCapsuleId = req.params.id;
   const now = new Date();
@@ -83,17 +88,9 @@ router.get('/:id', async (req, res) => {
     if (now >= timeCapsule.scheduled_date) {
       timeCapsule.status = 'unlocked';
       await timeCapsule.save();
-
-      return res.json({
-        status: 'unlocked',
-        content: timeCapsule.content || 'No content available',
-        files: timeCapsule.files,
-      });
+      return res.status(200).json(timeCapsule);
     } else {
-      return res.json({
-        status: 'locked',
-        message: `The time capsule is locked. It will be unlocked at ${new Date(timeCapsule.scheduled_date).toLocaleString()}.`,
-      });
+      return res.status(403).json({ message: 'This time capsule is locked.' });
     }
   } catch (error) {
     console.error('Error fetching time capsule:', error);
