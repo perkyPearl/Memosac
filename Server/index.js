@@ -207,7 +207,7 @@ app.post("/create", upload.single("file"), async (req, res) => {
 
 app.post("/posts", async (req, res) => {
   const userId = req.body.userId;
-
+  
   try {
     const posts = await Post.find({ author: userId })
       .populate("author", "_id username")
