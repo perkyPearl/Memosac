@@ -13,13 +13,13 @@ const albumSchema = new mongoose.Schema(
             default: "No description added",
         },
         coverImage: {
-            type: String,
-            // ref: "Gallery",
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "fs.files",
         },
         images: [
             {
-                type: String,
-                // ref: "Gallery",
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "fs.files",
                 required: true,
             },
         ],

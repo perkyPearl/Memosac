@@ -7,17 +7,31 @@ const{
 } = require("../middleware/uploadMiddleware");
 
 const{
-    createAlbum
+    createAlbum,
+    getAllAlbums,
 } = require("../controllers/albumController");
 
+const{
+        getFileFromGridFS,
+}=require("../controllers/fileController");
 console.log(uploadImageMiddleware);  // Log to check if it's correctly imported
 
-router.post("/create",
+router.post(
+    "/create",
     uploadImageMiddleware.fields([
-        {name:"coverImage",maxCount: 1},
-        {name:"images",maxCount:50}
+        { name: "coverImage", maxCount: 1 },
+        { name: "images", maxCount: 50 },
     ]),
+    (req, res, next) => {
+        console.log("Files after multer processing:", req.files); // Debugging multer
+        next();
+    },
     uploadToGridFS,
-    createAlbum);
+    createAlbum
+);
+
+router.get("/all",getAllAlbums);
+
+router.get("/file/:fileId", getFileFromGridFS);
 
 module.exports = router;
