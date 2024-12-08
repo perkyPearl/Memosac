@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import '../styles/Reciepe.css';
+import '../styles/reciepe.css';
 
 const RecipeDetail = () => {
   const { recipeId } = useParams(); 

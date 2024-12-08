@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
-import "../styles/Reciepe.css";
+import "../styles/reciepe.css";
 
 export const CreateRecipe = () => {
   const { setUserInfo, userInfo } = useContext(UserContext);

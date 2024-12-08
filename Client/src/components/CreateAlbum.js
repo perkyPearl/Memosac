@@ -1,57 +1,86 @@
-import React,{useState} from "react";
-import {useNavigate} from 'react-router-dom';
-import {createAlbum} from "../apicalls";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Album.css";
 
-const CreateAlbum = ({token, onAlbumCreated}) => {
-
-    const[formData, setFormData] = useState({
-        albumName:"",
-        description:"",
-        coverImage:null,
-        images:[ ],
+const CreateAlbum = () => {
+    const [formData, setFormData] = useState({
+        albumName: "",
+        description: "",
+        coverImage: null,
+        coverImagePreview: null,
+        images: [],
         tags: "",
-        isPublic: true
+        isPublic: true,
     });
 
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    // useEffect(() => {
+    //     if (!token) {
+    //         navigate("/login");
+    //     }
+    // }, [token, navigate]);
 
     const handleChange = (e) => {
-        const{name, value, type, checked} = e.target;
-        
+        const { name, value } = e.target;
+
+        if (error) {
+            setError(null);
+        }
+
         setFormData({
             ...formData,
-            [name]: type === "checkbox" ? checked:value,
+            [name]: value,
         });
     };
+    const handleCheckboxChange = (e) => {
+        setFormData({ ...formData, isPublic: e.target.checked });
+    };
 
-   const handleFileChange = (e) => {
-       setFormData([...e.target.files]); // Save all images
-   };
+    const handleCoverImageChange = (e) => {
+        const file = e.target.files[0];
 
-     const handleCoverImageChange = (e) => {
-         setFormData(e.target.files[0]); // Save the cover image separately
-     };
+        setFormData({
+            ...formData,
+            coverImage: file,
+            coverImagePreview: URL.createObjectURL(file),
+        });
+    };
+    const handleFileChange = (e) => {
+        setFormData({
+            ...formData,
+            images: [...e.target.files],
+        }); // Save all images
+    };
 
-
-    const [error, setError] = useState(null);
-
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsUploading(true);
 
-        if (!formData.albumName) {
+        if (!formData.albumName.trim()) {
             setError("Please give a title to your Memosac");
+            setIsUploading(false);
             console.log("Album name is missing:", formData.albumName);
             return;
         }
-        // const token = localStorage.getItem("token");
-        // console.log("Token from localStorage:", token); // Log the token to check if it's null or valid
-        if (!token) {
-            setError("Authorization token is missing");
+
+        if (formData.images.length === 0) {
+            setError("Please upload at least one keepsake image.");
+            setIsUploading(false);
             return;
         }
 
+        // if (!token) {
+        //     setError("Authorization token is missing");
+        //     return;
+        // }
+
+        // setError(null);
+
         const data = new FormData();
+        console.log("Album Name before append:", formData.albumName);
         data.append("albumName", formData.albumName);
         console.log("Album Name:", formData.albumName);
 
@@ -70,24 +99,39 @@ const CreateAlbum = ({token, onAlbumCreated}) => {
             data.append("images", image);
         });
 
-        // Log FormData before sending it
-        for (let pair of data.entries()) {
-            console.log(pair[0] + ": " + pair[1]); // This will log the key-value pairs
+        console.log("FormData Entries:");
+        for (let [key, value] of data.entries()) {
+            console.log(`${key} (${typeof value}):`, value);
         }
 
         try {
-            const result = await createAlbum(data, token);
+            const response = await fetch(
+                "http://localhost:4000/api/albums/create",
+                {
+                    method: "POST",
+                    body: data,
+                }
+            );
+            const result = await response.json();
+            console.log("Server Response:", result);
             if (result.error) {
                 setError(result.error);
             } else {
                 alert(
                     "Hurray!! Your Keepsakes are successfully preserved in your Memosac🥳🥳"
                 );
-                onAlbumCreated();
+                // onAlbumCreated();
                 navigate("/albums");
             }
         } catch (err) {
             setError("Failed to preserve your keepsakes. Please try again");
+        } finally {
+            setIsUploading(false);
+            setError(false);
+            const form = document.querySelector("form"); // Replace with your form's specific selector
+            if (form) {
+                form.reset();
+            }
         }
     };
 
@@ -99,7 +143,7 @@ const CreateAlbum = ({token, onAlbumCreated}) => {
                 <input
                     type="text"
                     name="albumName"
-                    value={formData.albumName}
+                    value={formData.albumName || ""}
                     onChange={handleChange}
                     required
                 />
@@ -120,13 +164,20 @@ const CreateAlbum = ({token, onAlbumCreated}) => {
                     onChange={handleCoverImageChange}
                     required
                 />
+                {formData.coverImagePreview && (
+                    <img
+                        src={formData.coverImagePreview}
+                        alt="Cover Preview"
+                        style={{ maxWidth: "200px", marginTop: "10px" }}
+                    />
+                )}
             </label>
             <label>
                 Memory Labels (comma-separated):
                 <input
                     type="text"
                     name="tags"
-                    value={formData.tags}
+                    value={formData.tags || ""}
                     onChange={handleChange}
                 />
             </label>
@@ -136,8 +187,8 @@ const CreateAlbum = ({token, onAlbumCreated}) => {
                     type="checkbox"
                     className="custom-checkbox"
                     name="isPublic"
-                    checked={formData.isPublic}
-                    onChange={handleChange}
+                    checked={formData.isPublic || true}
+                    onChange={handleCheckboxChange}
                 />
             </label>
             <label>
@@ -149,8 +200,8 @@ const CreateAlbum = ({token, onAlbumCreated}) => {
                     onChange={handleFileChange}
                 />
             </label>
-            <button className="submit-btn" type="submit">
-                Preserve your Keepsakes
+            <button className="submit-btn" type="submit" disabled={isUploading}>
+                {isUploading ? "Uploading..." : "Preserve your Keepsakes"}
             </button>
             {error && <p className="error">{error}</p>}
         </form>

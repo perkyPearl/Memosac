@@ -1,19 +1,23 @@
 const express = require("express");
-const{validateJwtToken} = require("../middleware/jwtAuthMiddleware");
+// const{validateJwtToken} = require("../middleware/jwtAuthMiddleware");
 const router = express.Router();
-const multer = require("multer");
+const{
+    uploadImageMiddleware,
+    uploadToGridFS
+} = require("../middleware/uploadMiddleware");
 
-const uploadMiddleware = multer({dest:"uploads/"});
 const{
     createAlbum
 } = require("../controllers/albumController");
 
+console.log(uploadImageMiddleware);  // Log to check if it's correctly imported
+
 router.post("/create",
-    validateJwtToken,
-    uploadMiddleware.fields([
+    uploadImageMiddleware.fields([
         {name:"coverImage",maxCount: 1},
         {name:"images",maxCount:50}
     ]),
+    uploadToGridFS,
     createAlbum);
 
 module.exports = router;

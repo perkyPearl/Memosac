@@ -2,12 +2,14 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const generateJwtToken = (userData) => {
+  console.log("Private Key (Generation):", process.env.PRIVATE_KEY);
+
   if (!process.env.PRIVATE_KEY) {
     console.error("JWT private key is missing from .env");
     throw new Error("JWT private key is missing");
   }
 
-  return jwt.sign(userData, process.env.PRIVATE_KEY, { expiresIn: "1h" });
+  return jwt.sign(userData, process.env.PRIVATE_KEY, { expiresIn: "24h" });
 };
 
 const validateJwtToken = (req, res, next) => {
@@ -19,13 +21,15 @@ const validateJwtToken = (req, res, next) => {
   ) {
     console.error("Missing or invalid Authorization header");
 
-    return res.status(401).json({ error: "Invalid Authorization format" });
+    return res
+        .status(401)
+        .json({ error: "Authorization token is required or malformed" });
   }
 
-  const token = req.headers.authorization?.split(" ")[1];
+  const token = req.headers.authorization.split(" ")[1];
   if (!token) {
-    console.error("Invalid token format");
-    return res.status(401).json({ error: "Invalid token format" });
+    console.error("Token is not provided in the Authorization header");
+    return res.status(401).json({ error: "Token is required" });
   }
 
   try {
@@ -35,8 +39,8 @@ const validateJwtToken = (req, res, next) => {
       console.error("JWT private key is missing from .env");
       throw new Error("JWT private key is missing");
     }
-
-    const validatedToken = jwt.verify(token, process.env.PRIVATE_KEY);
+    console.log("Token before validatedToken",token);
+    const validatedToken = jwt.decode(token);
     console.log("Decoded token:", validatedToken);
     req.user = validatedToken;
     next();
