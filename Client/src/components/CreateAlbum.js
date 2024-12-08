@@ -127,6 +127,7 @@ const CreateAlbum = () => {
             setError("Failed to preserve your keepsakes. Please try again");
         } finally {
             setIsUploading(false);
+            setError(false);
             const form = document.querySelector("form"); // Replace with your form's specific selector
             if (form) {
                 form.reset();

@@ -24,7 +24,7 @@ const imageStorage = multer.memoryStorage();
 // Multer middleware configuration
 const uploadImageMiddleware = multer({
     storage: imageStorage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit per image
+    limits: { fileSize: 20 * 1024 * 1024 }, // 10MB limit per image
     fileFilter: (req, file, cb) => {
         const allowedImageMimeTypes = [
             "image/jpeg",
