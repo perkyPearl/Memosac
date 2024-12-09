@@ -21,16 +21,15 @@ router.get("/", async (req, res) => {
   }
 
   try {
-    const recipes = await RecipesModel.find(query);
+    const recipes = await RecipesModel.find(query).populate("author", "_id username");
     res.status(200).json(recipes);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
-
 router.post("/create", async (req, res) => {
-  const { name, imageUrl, ingredients, instructions ,description, cookingTime, category, tags } = req.body;
+  const { name, imageUrl, ingredients, instructions ,description, cookingTime, category, tags, author } = req.body;
 
   try {
     const recipe = new RecipesModel({
@@ -42,6 +41,7 @@ router.post("/create", async (req, res) => {
       instructions,
       cookingTime,
       category,
+      author,
       tags,
     });
 

@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import RecipeCard from '../components/ReciepeCard'; 
 import { useNavigate } from 'react-router-dom';
+import '../styles/reciepe.css'; // Assuming you have a CSS file for styling
 
-const RecipeList = () => {
+export default function ReceipeHome() {
   const [recipes, setRecipes] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedTags, setSelectedTags] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        // Construct query parameters based on search, category, and tags
         const params = {};
         if (searchQuery) params.search = searchQuery;
         if (selectedCategory) params.category = selectedCategory;
-        if (selectedTags) params.tags = selectedTags;
 
         const response = await axios.get("http://localhost:4000/recipes", { params });
         setRecipes(response.data);
@@ -25,7 +23,7 @@ const RecipeList = () => {
       }
     };
     fetchRecipes();
-  }, [searchQuery, selectedCategory, selectedTags]); // Re-fetch whenever these change
+  }, [searchQuery, selectedCategory]); // Re-fetch whenever searchQuery or selectedCategory changes
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -35,61 +33,44 @@ const RecipeList = () => {
     setSelectedCategory(event.target.value);
   };
 
-  const handleTagsChange = (event) => {
-    setSelectedTags(event.target.value); // You can handle tags as comma-separated string
+  const handleCreateRecipe = () => {
+    navigate('/create-recipe');
   };
 
-  const navigate = useNavigate();
-
-  const handleCreateRecipe = () => {
-    navigate("/create-recipe");
+  const handleRecipeClick = (id) => {
+    navigate(`/recipes/${id}`);
   };
 
   return (
-    <div className="recipe-list">
-      <h1>Recipe List</h1>
-
-      <button onClick={handleCreateRecipe} className="create-recipe-btn">
-        Create New Recipe
+    <div className="receipe-home-container">
+      <div className="reciepe-flex">
+        <input
+          type="text"
+          placeholder="Search recipes by title, tags, category, or ingredients..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="search-input"
+        />
+        <select value={selectedCategory} onChange={handleCategoryChange} className="category-select">
+          <option value="">All Categories</option>
+          <option value="breakfast">Breakfast</option>
+          <option value="lunch">Lunch</option>
+          <option value="dinner">Dinner</option>
+          <option value="snacks">Snacks</option>
+        </select>
+      </div>
+      <div className="recipes-list">
+        {recipes.map((recipe) => (
+          <div key={recipe._id} className="recipe-card" onClick={() => handleRecipeClick(recipe._id)}>
+            <img src={recipe.imageUrl} alt={recipe.name} />
+            <h3>{recipe.name}</h3>
+            <p>{recipe.description}</p>
+          </div>
+        ))}
+      </div>
+      <button className="floating-button" onClick={handleCreateRecipe}>
+        +
       </button>
-
-      {/* Search Bar */}
-      <input
-        type="text"
-        placeholder="Search recipes..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-      />
-
-      {/* Category Filter */}
-      <select value={selectedCategory} onChange={handleCategoryChange}>
-        <option value="">All Categories</option>
-        <option value="Breakfast">Breakfast</option>
-        <option value="Lunch">Lunch</option>
-        <option value="Dinner">Dinner</option>
-        <option value="Dessert">Dessert</option>
-        <option value="Snack">Snack</option>
-      </select>
-
-      {/* Tags Filter */}
-      <input
-        type="text"
-        placeholder="Filter by tags (comma-separated)..."
-        value={selectedTags}
-        onChange={handleTagsChange}
-      />
-
-      {recipes.length > 0 ? (
-        <div className="recipe-card-grid">
-          {recipes.map((recipe) => (
-            <RecipeCard key={recipe._id} recipe={recipe} />
-          ))}
-        </div>
-      ) : (
-        <p>No recipes available</p>
-      )}
     </div>
   );
-};
-
-export default RecipeList;
+}

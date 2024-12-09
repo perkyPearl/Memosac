@@ -16,6 +16,7 @@ export const CreateRecipe = () => {
     imageUrl: "https://example.com/spaghetti-carbonara.jpg",  // Default image URL
     cookingTime: 30,  // Default cooking time (in minutes)
     category: "Dinner",  // Default category
+    author: userID,
     tags: ["Italian", "Pasta", "Main Course"],  // Default tags
   });
 

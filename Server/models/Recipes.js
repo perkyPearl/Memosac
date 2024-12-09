@@ -9,6 +9,7 @@ const recipeSchema = new mongoose.Schema({
   cookingTime: { type: Number, required: true },
   category: { type: String, required: true },
   tags: { type: [String]},
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 const Recipe = mongoose.model('Recipe', recipeSchema);

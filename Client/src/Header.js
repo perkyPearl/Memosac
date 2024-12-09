@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "./UserContext";
+import "./styles/App.css";
 
 export default function Header() {
   const { setUserInfo, userInfo } = useContext(UserContext);
   const navigate = useNavigate();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(true);
 
   useEffect(() => {
     fetch("http://localhost:4000/profile", {
@@ -64,10 +65,11 @@ export default function Header() {
       <nav>
         {username ? (
           <>
-            <Link to="/create">Create new post</Link>
-            <Link to="/timecapsule">Create new time Capsule</Link>
+            <Link to="/posts">Posts</Link>
+            <Link to="/timecapsule">Time</Link>
             <Link to="/albums">Memory Vault</Link>
             <Link to="/gallery">Your Gallery</Link>
+            <Link to="/Profile">Profile</Link>
             <div
               className="dropdown"
               onClick={() => setDropdownOpen(!dropdownOpen)}

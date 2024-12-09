@@ -10,7 +10,7 @@ function getTimeRemaining(scheduledDate) {
   const timeDiff = releaseDate - now;
 
   if (timeDiff <= 0) {
-    return "Released";
+    return "Released!!";
   }
 
   const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
@@ -31,15 +31,8 @@ export default function TimeCapsulePage() {
       credentials: "include",
     })
       .then((response) => response.json())
-      .then((data) => {
-        setTimeCapsules(data);
-        const initialTimeRemaining = data.reduce((acc, capsule) => {
-          acc[capsule._id] = getTimeRemaining(capsule.scheduled_date);
-          return acc;
-        }, {});
-        setTimeRemaining(initialTimeRemaining);
-      })
-      .catch((err) => console.error(err));
+      .then((data) => setTimeCapsules(data))
+      .catch((err) => console.error("Error fetching time capsules:", err));
   }, []);
 
   useEffect(() => {
@@ -59,7 +52,7 @@ export default function TimeCapsulePage() {
   }, [timeCapsules]);
 
   const handleCardClick = (capsule) => {
-    if (timeRemaining[capsule._id] === "Released") {
+    if (timeRemaining[capsule._id] === "Released!!") {
       navigate(`/timecapsule/${capsule._id}`);
     } else {
       toast.error("This time capsule is locked.");
@@ -70,11 +63,7 @@ export default function TimeCapsulePage() {
     <div className="time-capsule-container">
       <ToastContainer />
       <div className="time-capsule-heading">
-        <h1>Your Time Capsules</h1>
-
-        <button onClick={() => navigate("/create-timecapsule")}>
-          Create a Time Capsule
-        </button>
+        <h1>Your Time Capsules:</h1>
       </div>
 
       {timeCapsules.length === 0 ? (
@@ -90,11 +79,16 @@ export default function TimeCapsulePage() {
               <div className="capsule-content">
                 <h3>{capsule.title || "Untitled Capsule"}</h3>
               </div>
-              <div className="time-remaining">{timeRemaining[capsule._id]}</div>
+              <div className="time-remaining">
+                {timeRemaining[capsule._id]}
+              </div>
             </div>
           ))}
         </div>
       )}
+      <button className="floating-button" onClick={() => navigate("/create-timecapsule")}>
+        +
+      </button>
     </div>
   );
 }
