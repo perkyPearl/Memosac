@@ -1,27 +1,9 @@
 const multer = require("multer");
-const { MongoClient, GridFSBucket } = require("mongodb");
 const stream = require("stream");
-
-const mongoose = require("mongoose");
-require("dotenv").config();
-
-const mongoURI = process.env.MongoDBURI;
-let gridFSBucket;
-(async () => {
-    const client = new MongoClient(mongoURI);
-    try {
-        await client.connect();
-        const db = client.db();
-        gridFSBucket = new GridFSBucket(db, { bucketName: "uploads" });
-        console.log("GridFSBucket initialized successfully!");
-    } catch (error) {
-        console.error("Error initializing GridFSBucket", error);
-    }
-})();
+const { initGridFSBucket } = require("../gridFS");
+const crypto = require("crypto");
 
 const imageStorage = multer.memoryStorage();
-
-// Multer middleware configuration
 const uploadImageMiddleware = multer({
     storage: imageStorage,
     limits: { fileSize: 20 * 1024 * 1024 }, // 10MB limit per image
@@ -54,7 +36,7 @@ const uploadAudioMiddleware = multer({
             "audio/ogg",
         ];
         if (allowedAudioMimeTypes.includes(file.mimetype)) {
-            cb(null.true);
+            cb(null, true);
         } else {
             cd(new Error("Invalid file type. Only audio files are allowed"));
         }
@@ -81,48 +63,54 @@ const uploadVideoMiddleware = multer({
 });
 //-----------------------------
 const uploadToGridFS = async (req, res, next) => {
-    console.log("Files received in uploadToGridFS function:", req.files); // Log req.files to see if files are there
-
-    if (!req.files || (!req.files.coverImage && !req.files.images)) {
-        console.error("No file uploaded in request");
-
-        return res.status(400).send("No file uploaded");
-    }
-    if (!gridFSBucket) {
-        console.error("GridFSBucket not initialized");
-        return res.status(500).send("Internal server error");
-    }
-
-    const uploadSingleFile = (file) => {
-        return new Promise((resolve, reject) => {
-            const uniqueFilename = `${Date.now()}-${file.originalname}`;
-            const uploadStream = gridFSBucket.openUploadStream(uniqueFilename, {
-                metadata: {
-                    albumId: req.body.albumName || null,
-                    userId: req.user ? req.user._id : "test-user-id",
-                    mimeType: file.mimetype,
-                },
-            });
-
-            const fileStream = stream.Readable.from(file.buffer);
-            fileStream.pipe(uploadStream);
-
-            uploadStream.on("error", (err) => {
-                console.error("Error uploading to GridFS:", err);
-                reject(err);
-            });
-
-            uploadStream.on("finish", () => {
-                console.log(
-                    `File ${uniqueFilename} uploaded to GridFS successfully`
-                );
-                resolve({ filename: uniqueFilename, fileId: uploadStream.id });
-            });
-        });
-    };
-
     try {
+        const gridFSBucket = await initGridFSBucket();
+        console.log("Files received in uploadToGridFS function:", req.files); // Log req.files to see if files are there
+
+        if (!req.files || (!req.files.coverImage && !req.files.images)) {
+            console.error("No file uploaded in request");
+
+            return res.status(400).send("No file uploaded");
+        }
+        if (!gridFSBucket) {
+            console.error("GridFSBucket not initialized");
+            return res.status(500).send("Internal server error");
+        }
         const uploadedFiles = [];
+
+        const uploadSingleFile = (file) => {
+            return new Promise((resolve, reject) => {
+                const uniqueFilename = `${Date.now()}-${file.originalname}`;
+                const uploadStream = gridFSBucket.openUploadStream(
+                    uniqueFilename,
+                    {
+                        metadata: {
+                            albumId: req.body.albumName || null,
+                            userId: req.user ? req.user._id : "test-user-id",
+                            mimeType: file.mimetype,
+                        },
+                    }
+                );
+
+                const fileStream = stream.Readable.from(file.buffer);
+                fileStream.pipe(uploadStream);
+
+                uploadStream.on("error", (err) => {
+                    console.error("Error uploading to GridFS:", err);
+                    reject(err);
+                });
+
+                uploadStream.on("finish", () => {
+                    console.log(
+                        `File ${uniqueFilename} uploaded to GridFS successfully`
+                    );
+                    resolve({
+                        filename: uniqueFilename,
+                        fileId: uploadStream.id,
+                    });
+                });
+            });
+        };
 
         // Upload coverImage if it exists
         if (req.files.coverImage) {

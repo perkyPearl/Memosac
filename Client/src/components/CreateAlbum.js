@@ -26,14 +26,26 @@ const CreateAlbum = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
+        if (name === "albumName") {
+            setFormData({
+                ...formData,
+                albumName: value.trim(), // Ensure trimming the value before storing
+            });
+        } else if (name === "tags") {
+            setFormData({
+                ...formData,
+                [name]: value.split(",").map((tag) => tag.trim()), // Split and trim tags
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value,
+            });
+        }
+
         if (error) {
             setError(null);
         }
-
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
     };
     const handleCheckboxChange = (e) => {
         setFormData({ ...formData, isPublic: e.target.checked });
@@ -49,9 +61,11 @@ const CreateAlbum = () => {
         });
     };
     const handleFileChange = (e) => {
+            const files = Array.from(e.target.files);
+
         setFormData({
             ...formData,
-            images: [...e.target.files],
+            images: files,
         }); // Save all images
     };
 
@@ -59,7 +73,9 @@ const CreateAlbum = () => {
         e.preventDefault();
         setIsUploading(true);
 
-        if (!formData.albumName.trim()) {
+        console.log("Form data before submission:", formData);
+
+        if (!formData.albumName) {
             setError("Please give a title to your Memosac");
             setIsUploading(false);
             console.log("Album name is missing:", formData.albumName);
@@ -88,7 +104,7 @@ const CreateAlbum = () => {
             "description",
             formData.description || "No description provided"
         );
-        data.append("tags", formData.tags || "No tags");
+        data.append("tags", formData.tags.join(",") || "No tags");
         data.append("isPublic", formData.isPublic);
 
         if (formData.coverImage) {
@@ -120,6 +136,15 @@ const CreateAlbum = () => {
                 alert(
                     "Hurray!! Your Keepsakes are successfully preserved in your Memosac🥳🥳"
                 );
+                setFormData({
+                    albumName: "",
+                    description: "",
+                    coverImage: null,
+                    coverImagePreview: null,
+                    images: [],
+                    tags: "",
+                    isPublic: true,
+                });
                 // onAlbumCreated();
                 navigate("/albums");
             }
@@ -127,17 +152,14 @@ const CreateAlbum = () => {
             setError("Failed to preserve your keepsakes. Please try again");
         } finally {
             setIsUploading(false);
-            setError(false);
-            const form = document.querySelector("form"); // Replace with your form's specific selector
-            if (form) {
-                form.reset();
-            }
         }
     };
-
     return (
         <form className="album-form" onSubmit={handleSubmit}>
-            <h1>Assemble your Keepsakes</h1>
+            <h1>
+                What will your Memosac be called?" Start creating your album and
+                keep your memories alive!
+            </h1>
             <label>
                 Tag Your Memosac:
                 <input

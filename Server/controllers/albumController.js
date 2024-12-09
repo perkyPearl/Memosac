@@ -3,6 +3,7 @@ const Album = require("../models/albumModel");
 // const fs = require("fs");
 // const path = require("path");
 const mongoose = require("mongoose");
+const {uploadToGridFS} = require("../middleware/uploadMiddleware");
 
 //For creating a new album
 exports.createAlbum = async (req, res) => {
@@ -18,37 +19,39 @@ exports.createAlbum = async (req, res) => {
                 .json({ message: "Your Memosac deserves a title " });
         }
 
-        if (!req.files || !req.files.coverImage || !req.files.images) {
+        // Validate uploaded files
+        if (!req.uploadedFiles || req.uploadedFiles.length === 0) {
             return res
                 .status(400)
-                .json({ message: "Cover image and images are required." });
+                .json({
+                    message: "Please upload a cover image and album images.",
+                });
         }
 
         console.log("Cover Image:", req.files.coverImage);
 
-        const coverImage = req.files.coverImage
-            ? req.files.coverImage[0].filename
-            : null;
-        const images = req.files.images
-            ? req.files.images
-                  .filter((file) => file && file.filename) // Filter out invalid entries
-                  .map((file) => file.filename)
-            : [];
-
         console.log("Uploaded files:", req.files);
+        console.log("Uploading files to GridFS...");
 
-        if (!req.files.images || req.files.images.length < 1) {
-            return res
-                .status(400)
-                .json({ message: "At least one image is required." });
-        }
+        const coverImageFile = req.uploadedFiles.find(
+            (file) => file.type === "coverImage"
+        );
+        const imageFiles = req.uploadedFiles.filter(
+            (file) => file.type === "images"
+        );
+
+        console.log("Cover Image ID:", coverImageFile.fileId);
+        console.log(
+            "Image IDs:",
+            imageFiles.map((file) => file.fileId)
+        );
 
         //create album
         const newAlbum = new Album({
-            albumName: albumName.trim,
-            description: description || "No description added",
-            coverImage,
-            images,
+            albumName: albumName.trim(),
+            description: description?.trim() || "No description added",
+            coverImage: coverImageFile ? coverImageFile.fileId : null,
+            images: imageFiles.map((file) => file.fileId),
             tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
             isPublic: isPublic || true,
             createdBy: new mongoose.Types.ObjectId(), // Temporary ObjectId as fallback
@@ -83,10 +86,61 @@ exports.createAlbum = async (req, res) => {
 };
 
 //get all albums
-exports.getAllAlbums = async (req, res) => {};
+exports.getAllAlbums = async (req, res) => {
+    try {
+        const albums = await Album.find().sort({ createdAt: -1 });
+        
+
+        const albumsWithCoverImageUrl = albums.map((album) => {
+            return {
+                ...album._doc,
+                coverImageUrl: album.coverImage
+                    ? `${req.protocol}://${req.get("host")}/api/albums/file/${ album.coverImage}`
+                    : null, // Generate a URL if coverImage exists
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            albums: albumsWithCoverImageUrl,
+        });
+    } catch (error) {
+        console.error("Error fetching albums:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch albums.",
+            error: error.message,
+        });
+    }
+};
 
 //get a single album by Id
-exports.getAlbumByID = async (req, res) => {};
+exports.getAlbumByID = async (req, res) => {
+     try {
+         const albumId = req.params.id;
+
+         // Fetch the album by ID
+         const album = await Album.findById(albumId);
+         if (!album) {
+             return res.status(404).json({ message: "Album not found." });
+         }
+
+         // Add the cover image URL to the album
+         const albumWithCoverImageUrl = {
+             ...album._doc,
+             coverImageUrl: album.coverImage
+                 ? `${req.protocol}://${req.get("host")}/file/${
+                       album.coverImage
+                   }`
+                 : null,
+         };
+
+         res.status(200).json({ album: albumWithCoverImageUrl });
+     } catch (error) {
+         console.error("Error fetching album by ID:", error);
+         res.status(500).json({ message: "Failed to fetch album." });
+     }
+};
 
 //Update an album
 exports.updateAlbum = async (req, res) => {};
