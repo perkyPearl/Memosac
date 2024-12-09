@@ -146,7 +146,49 @@ exports.getAlbumByID = async (req, res) => {
 exports.updateAlbum = async (req, res) => {};
 
 //delete an album
-exports.deleteAlbum = async (req, res) => {};
+exports.deleteAlbum = async (req, res) => {
+    try {
+        const albumId = req.params.id;
+
+        // Step 1: Find the album by ID
+        const album = await Album.findById(albumId);
+
+        if (!album) {
+            return res.status(404).json({ message: "Album not found." });
+        }
+
+        // Optional: Delete associated images from GridFS (cover image + album images)
+        // Uncomment this block if you want to handle image deletion now
+        /*
+        const { coverImage, images } = album;
+
+        if (coverImage) {
+            await deleteFileFromGridFS(coverImage); // Custom function to delete GridFS file
+        }
+        if (images && images.length > 0) {
+            for (const imageId of images) {
+                await deleteFileFromGridFS(imageId);
+            }
+        }
+        */
+
+        // Step 2: Delete the album from MongoDB
+        await Album.findByIdAndDelete(albumId);
+
+        // Step 3: Send a success response
+        res.status(200).json({
+            success: true,
+            message: "Album deleted successfully.",
+        });
+    } catch (error) {
+        console.error("Error deleting album:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete the album.",
+            error: error.message,
+        });
+    }
+};
 
 //searching albums
 exports.searchAlbums = async (req, res) => {};
