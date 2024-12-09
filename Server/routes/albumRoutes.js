@@ -9,6 +9,7 @@ const{
 const{
     createAlbum,
     getAllAlbums,
+    deleteAlbum
 } = require("../controllers/albumController");
 
 const{
@@ -33,5 +34,7 @@ router.post(
 router.get("/all",getAllAlbums);
 
 router.get("/file/:fileId", getFileFromGridFS);
+
+router.delete("/delete/:id", deleteAlbum);
 
 module.exports = router;
