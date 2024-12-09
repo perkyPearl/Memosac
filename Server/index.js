@@ -27,10 +27,10 @@ const client = new S3Client({
   },
 });
 
-mongoose
-  .connect(process.env.MongoDBURI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+mongoose.connect(process.env.MongoDBURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -191,6 +191,7 @@ app.post("/create", upload.single("file"), async (req, res) => {
       summary: req.body.summary,
       content: req.body.content,
       cover: s3Url,
+      tags: req.body.tags.split(","),
       author: req.body.author,
     });
 
@@ -216,6 +217,22 @@ app.post("/posts", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error retrieving posts" });
+  }
+});
+
+app.get("/tag/:tag", async (req, res) => {
+  const { tag } = req.params;
+  try {
+    const posts = await Post.find({ tags: tag }).populate("author", "_id username");
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "No posts found with this tag" });
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching posts with tag:", error);
+    res.status(500).json({ message: "Error retrieving posts with this tag" });
   }
 });
 

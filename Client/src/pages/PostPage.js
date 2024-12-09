@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { formatISO9075 } from "date-fns";
 
 export default function PostPage() {
   const [postInfo, setPostInfo] = useState(null);
   const { id } = useParams();
+
   useEffect(() => {
     fetch(`http://localhost:4000/post/${id}`).then((response) => {
       response.json().then((postInfo) => {
-        console.log(postInfo)
+        console.log(postInfo);
         setPostInfo(postInfo);
       });
     });
@@ -32,6 +33,18 @@ export default function PostPage() {
         className="content"
         dangerouslySetInnerHTML={{ __html: postInfo.content }}
       />
+      
+      {/* Display Tags */}
+      {postInfo.tags && postInfo.tags.length > 0 && (
+        <div className="tags">
+          <h3>Tags:</h3>
+          {postInfo.tags.map((tag, index) => (
+            <Link to={`/tag/${tag}`} key={index} className="tag">
+              {tag}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

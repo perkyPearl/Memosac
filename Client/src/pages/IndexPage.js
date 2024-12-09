@@ -1,28 +1,50 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Post from '../Post';
 import { useUser } from '../UserContext';
+import '../styles/index.css'; 
 
 export default function IndexPage() {
   const [posts, setPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const { userInfo } = useUser();
+  const { tag } = useParams();
+  const navigate = useNavigate();
   let i = 0;
 
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        let url = 'http://localhost:4000/posts';
+        let options = {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: userInfo.id })
+        };
+
+        if (tag) {
+          url = `http://localhost:4000/tag/${tag}`;
+          options = {
+            method: 'GET',
+            credentials: 'include'
+          };
+        }
+
+        const response = await fetch(url, options);
+        const data = await response.json();
+        setPosts(data);
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+      }
+    };
+
     if (userInfo) {
-      fetch('http://localhost:4000/posts', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: userInfo.id })
-      })
-        .then(response => response.json())
-        .then(posts => setPosts(posts))
-        .catch(err => console.error(err));
+      fetchPosts();
     }
-  }, [userInfo]);
+  }, [userInfo, tag]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -52,6 +74,9 @@ export default function IndexPage() {
           <span className="no-posts-subtext">Posts shared or created will be shown here.</span>
         </div>
       )}
+      <button className="floating-button" onClick={() => navigate('/create')}>
+        +
+      </button>
     </div>
   );
 }
