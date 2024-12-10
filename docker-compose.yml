@@ -1,18 +1,24 @@
 version: '3'
-
 services:
   server:
-    build: ./server
+    build: ./Server
     ports:
       - "4000:4000"
     environment:
       - NODE_ENV=production
+    env_file:
+      - ./Server/.env
     volumes:
-      - ./server:/app
+      - ./Server:/app
+    networks:
+      - app-network
 
   client:
-    build: ./client
+    build: ./Client
     ports:
-      - "3000:80"
-    environment:
-      - NODE_ENV=production
+      - "3000:3000"
+    networks:
+      - app-network
+
+networks:
+  app-network:
