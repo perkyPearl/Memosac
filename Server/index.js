@@ -30,6 +30,8 @@ const client = new S3Client({
 mongoose.connect(process.env.MongoDBURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+}).then(()=>{
+  console.log("Connected!")
 });
 
 const upload = multer({ storage: multer.memoryStorage() });

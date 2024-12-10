@@ -72,7 +72,7 @@ export default function Header() {
             <Link to="/Profile">Profile</Link>
             <div
               className="dropdown"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
+              onClick={() => logout()}
               style={{ cursor: "pointer" }}
             >
               <>
