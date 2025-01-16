@@ -32,6 +32,8 @@ mongoose.connect(process.env.MongoDBURI, {
   useUnifiedTopology: true,
 }).then(()=>{
   console.log("Connected!")
+}).catch((err)=>{
+  console.log(err)
 });
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -42,12 +44,13 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api", galleryRoutes);
-app.use("/api/albums", albumRoutes);
+app.use("/reminders", require("./routes/Reminder"));
 app.use("/recipes", require("./routes/recipes"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/user", require("./routes/userRoutes"));
 app.use("/timecapsule", require("./routes/timeCapsules"));
+app.use("/api/albums", albumRoutes);
+app.use("/api", galleryRoutes);
 
 app.post("/google-login", async (req, res) => {
   const { username, email, profilePic } = req.body;

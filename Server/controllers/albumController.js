@@ -53,7 +53,7 @@ exports.createAlbum = async (req, res) => {
             coverImage: coverImageFile ? coverImageFile.fileId : null,
             images: imageFiles.map((file) => file.fileId),
             tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
-            isPublic: isPublic || true,
+            isPublic: isPublic,
             createdBy: new mongoose.Types.ObjectId(), // Temporary ObjectId as fallback
             activityLog: [
                 {

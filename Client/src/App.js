@@ -20,6 +20,7 @@ import TimeCapsulePage from "./pages/TimeCapsulePage";
 import RecipeDetail from "./pages/ReceipeDetials";
 import TimeCapsuleDetail from "./pages/TimeCapsuleDetail";
 import AlbumDashboard from "./pages/AlbumDashboard";
+import Reminder from "./pages/Reminder";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                       <Route path="/tag/:tag" element={<IndexPage />} />
                       <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/recipes" element={<RecipeHome />} />
+                      <Route path="/reminder" element={<Reminder/>}/>
                       <Route path="/create-recipe" element={<CreateRecipe />} />
                       <Route
                           path="/recipes/:recipeId"

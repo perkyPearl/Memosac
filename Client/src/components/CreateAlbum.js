@@ -10,7 +10,7 @@ const CreateAlbum = () => {
         coverImagePreview: null,
         images: [],
         tags: "",
-        isPublic: true,
+        isPublic: "",
     });
 
     const navigate = useNavigate();
@@ -143,7 +143,7 @@ const CreateAlbum = () => {
                     coverImagePreview: null,
                     images: [],
                     tags: "",
-                    isPublic: true,
+                    isPublic:"",
                 });
                 // onAlbumCreated();
                 navigate("/albums");
@@ -209,7 +209,7 @@ const CreateAlbum = () => {
                     type="checkbox"
                     className="custom-checkbox"
                     name="isPublic"
-                    checked={formData.isPublic || true}
+                    checked={formData.isPublic}
                     onChange={handleCheckboxChange}
                 />
             </label>

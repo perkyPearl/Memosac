@@ -16,6 +16,7 @@ export default function CreatePost() {
   const [redirect, setRedirect] = useState(false);
   const [enhancing, setEnhancing] = useState(false); 
   async function createNewPost(ev) {
+    
     ev.preventDefault();
     const data = new FormData();
     data.set('title', title);

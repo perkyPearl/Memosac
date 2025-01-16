@@ -11,7 +11,7 @@ exports.getFileFromGridFS = async (req, res) => {
             return res.status(400).send("File ID is required or invalid");
         }
 
-        console.log(`Fetching file with ID: ${fileId}`); // Log fileId for debugging
+        console.log(`Fetching file with ID: ${fileId}`);
 
         const db = mongoose.connection.db;
         const bucket = new GridFSBucket(db, { bucketName: "uploads" });

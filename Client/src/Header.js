@@ -69,7 +69,7 @@ export default function Header() {
             <Link to="/timecapsule">Time</Link>
             <Link to="/albums">Memory Vault</Link>
             <Link to="/gallery">Your Gallery</Link>
-            <Link to="/Profile">Profile</Link>
+            {/* <Link to="/Profile">Profile</Link> */}
             <div
               className="dropdown"
               onClick={() => logout()}

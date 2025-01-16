@@ -26,18 +26,14 @@ exports.googleLogin = async (req, res) => {
       expiresIn: "7d",
     });
 
-    res
-      .cookie("token", token, {
+    res.cookie("token", token, {
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .json({ id: user._id, username, token });
+      }).json({ id: user._id, username, token });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "Internal server error while processing Google login" });
-  }
+    res.status(500).json({ message: "Internal server error while processing Google login" });
+    }
 };
 
 exports.login = async (req, res) => {
@@ -55,12 +51,10 @@ exports.login = async (req, res) => {
         secret,
         { expiresIn: "1h" }
       );
-      res
-        .cookie("token", token, {
+      res.cookie("token", token, {
           httpOnly: true,
           maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-        .json({ id: user._id, username, token });
+        }).json({ id: user._id, username, token });
     } else {
       return res.status(401).json({ message: "Invalid credentials" });
     }

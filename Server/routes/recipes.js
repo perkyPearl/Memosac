@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const RecipesModel = require("../models/Recipes"); 
-const UserModel = require("../models/User"); 
+const RecipesModel = require("../models/Recipes");
+const UserModel = require("../models/User");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -21,7 +21,10 @@ router.get("/", async (req, res) => {
   }
 
   try {
-    const recipes = await RecipesModel.find(query).populate("author", "_id username");
+    const recipes = await RecipesModel.find(query).populate(
+      "author",
+      "_id username"
+    );
     res.status(200).json(recipes);
   } catch (err) {
     res.status(500).json(err);
@@ -29,7 +32,17 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  const { name, imageUrl, ingredients, instructions ,description, cookingTime, category, tags, author } = req.body;
+  const {
+    name,
+    imageUrl,
+    ingredients,
+    instructions,
+    description,
+    cookingTime,
+    category,
+    tags,
+    author,
+  } = req.body;
 
   try {
     const recipe = new RecipesModel({
